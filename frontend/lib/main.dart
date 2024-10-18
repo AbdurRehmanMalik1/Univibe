@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+// These two bottom packages are for converting data 
+// and sending API call
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+// Top 2
+
 void main() {
   runApp(const MyApp());
 }
@@ -11,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Fast Media App',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -31,7 +37,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Fast Media App Users Page'),
     );
   }
 }
@@ -55,71 +61,77 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  var _users = []; // Initialize _users as an empty list
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  // Function to fetch user data from the API
+  void _getUserIds() async {
+    http.Response response = await http.get(Uri.parse('http://localhost:3000/users'));
+
+    if (response.statusCode == 200) {
+      var retrievedUsers = jsonDecode(response.body); // Decoding JSON data
+      
+      // You can now work with the list of users
+      // If you want to work with user IDs and other details:
+      // Assuming the retrievedUsers is a List of user objects
+      setState(() {
+        _users = retrievedUsers; // Update _users state with the retrieved data
+      });
+    } else {
+      print(response.statusCode); // If the API call fails
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            const Text(
+              'Users Data:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+            // Display user data in a ListView if available
+            _users.isEmpty
+                ? const Text('No users data available')
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: _users.length,
+                      itemBuilder: (context, index) {
+                        var user = _users[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                          child: ListTile(
+                            title: Text('ID: ${user['id']}'),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Name: ${user['name']}'),
+                                Text('Email: ${user['email']}'),
+                                Text('Password: ${user['password']}'),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        onPressed: _getUserIds,
+        tooltip: 'Get Users',
+        child: const Icon(Icons.refresh),
+      ),
     );
   }
 }
