@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/signup/signup.dart';
 
 // These two bottom packages are for converting data 
 // and sending API call
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 // Top 2
-// void main() {
-//   runApp(const MyApp());
-// }
-void main(){
-  runApp(
-    const SignUpPage()
-  );
+void main() {
+  runApp(const SignUpPage());
 }
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SignUpPage extends StatelessWidget {
+  const SignUpPage({super.key});
 
   // This widget is the root of your application.
   @override
@@ -94,41 +88,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            const Text(
-              'Users Data:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            // Display user data in a ListView if available
-            _users.isEmpty
-                ? const Text('No users data available')
-                : Expanded(
-                    child: ListView.builder(
-                      itemCount: _users.length,
-                      itemBuilder: (context, index) {
-                        var user = _users[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                          child: ListTile(
-                            title: Text('ID: ${user['id']}'),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Name: ${user['name']}'),
-                                Text('Email: ${user['email']}'),
-                                Text('Password: ${user['password']}'),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+            const Text('This is the Sign up form')
           ],
+
         ),
       ),
       floatingActionButton: FloatingActionButton(
