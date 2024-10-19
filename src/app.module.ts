@@ -17,7 +17,7 @@ const azure_config:TypeOrmModuleOptions = {
   database: 'dbProject',
   entities: [__dirname + '/**/*.entity{.ts,.js}'],  // Path to your entities
   synchronize: true,      // Auto-sync entities with DB (disable in production)
-  logging: true,
+  logging: false,
   extra: {
     encrypt: true,
     trustServerCertificate: false,  // Required for development environments with self-signed certificates
@@ -32,7 +32,7 @@ const local_manu_config:TypeOrmModuleOptions = {
   database: 'dbProject',
   entities: [__dirname + '/**/*.entity{.ts,.js}'],  // Path to your entities
   synchronize: true,      // Auto-sync entities with DB (disable in production)
-  logging: true,
+  logging: false,
   extra: {
     encrypt: false,
     trustServerCertificate: true,  // Required for development environments with self-signed certificates

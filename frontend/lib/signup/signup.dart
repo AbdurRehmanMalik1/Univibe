@@ -64,7 +64,6 @@ class _MyHomePageState extends State<MyHomePage> {
   // Function to fetch user data from the API
   void _getUserIds() async {
     http.Response response = await http.get(Uri.parse('http://localhost:3000/users'));
-
     if (response.statusCode == 200) {
       var retrievedUsers = jsonDecode(response.body); // Decoding JSON data
       
