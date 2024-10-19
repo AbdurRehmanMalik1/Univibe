@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Delete,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
@@ -18,8 +19,15 @@ export class UserController {
   async sendVerification(
     @Body() { email, password }: { email: string; password: string },
   ): Promise<{ message: string }> {
-    await this.userService.sendVerificationCode(email, password);
-    return { message: 'Verification code sent to email' };
+    try {
+      await this.userService.sendVerificationCode(email, password);
+      return { message: 'Verification code sent to email' };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        return { message: error.message };
+      }
+      throw error; // Re-throw other errors to be handled by the global error handler
+    }
   }
 
   // Step 2: User submits the verification code

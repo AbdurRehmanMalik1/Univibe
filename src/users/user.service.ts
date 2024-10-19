@@ -29,6 +29,15 @@ export class UserService {
   ) {}
 
   async sendVerificationCode(email: string, password: string): Promise<void> {
+    const existingUser = await this.userRepository.findOne({
+      where: { email },
+    });
+    if (existingUser) {
+      throw new BadRequestException(
+        'Email already exists. Please log in instead.',
+      );
+    }
+
     const code = crypto.randomBytes(3).toString('hex');
 
     this.temporaryData.set(email, { code, password, verified: false });
@@ -89,7 +98,7 @@ export class UserService {
     } catch (error) {
       throw new HttpException(
         'Failed to send verification email, please try again later',
-        HttpStatus.INTERNAL_SERVER_ERROR,  // Returns HTTP status 500
+        HttpStatus.INTERNAL_SERVER_ERROR, // Returns HTTP status 500
       );
     }
   }
