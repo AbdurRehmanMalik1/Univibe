@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
     http.Response response = await http.get(Uri.parse('http://localhost:3000/users'));
     if (response.statusCode == 200) {
       var retrievedUsers = jsonDecode(response.body); // Decoding JSON data
-      
+      print(retrievedUsers);
       // You can now work with the list of users
       // If you want to work with user IDs and other details:
       // Assuming the retrievedUsers is a List of user objects
@@ -86,12 +86,81 @@ class _MyHomePageState extends State<MyHomePage> {
         // title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment:MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('This is the Sign up form')
-          ],
-
+        child:Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black,
+              width: 2.0
+            ),
+            borderRadius: BorderRadius.circular(10) ,
+          ),
+          padding: const EdgeInsets.only(
+            top:20,
+            bottom: 40,
+            left: 20,
+            right:20
+          ),
+          child: Column(
+             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment:MainAxisAlignment.start,
+            children: <Widget>[
+              const Text(
+                'Sign Up',
+                style: TextStyle(
+                  fontSize: 30, // Set the font size here
+                ),
+              ),
+              const SizedBox(height: 60,),  
+              //second row (after sign up)
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 750, // Set your desired max width here
+                ),
+                child: const FractionallySizedBox(
+                  widthFactor: 0.5, // The width factor will take up 50% of the parent's width
+                  child: const TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Enter Your Email',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20,),
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 750, // Set your desired max width here
+                ),
+                child: const FractionallySizedBox(
+                  widthFactor: 0.5, // The width factor will take up 50% of the parent's width
+                  child: const TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Enter Your Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20,),
+              Padding(
+                padding: const EdgeInsets.all(10.0), // Padding around the button
+                child: Container(
+                  width: 170, // Set your desired width here
+                  //height: 50, // Set your desired height here
+                  child: TextButton(
+                    onPressed: _getUserIds,
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Sign Up'),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
