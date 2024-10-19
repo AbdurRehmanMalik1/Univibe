@@ -1,12 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-<<<<<<< HEAD
-  await app.listen(3000);
-  console.log('Application is running on: http://localhost:3000');
-=======
 
   //middle ware to allow request from port 5000 which is our flutter application
   app.enableCors({
@@ -15,7 +14,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type'],
   });
 
-  await app.listen(process.env.PORT ?? 3000);
->>>>>>> d8a48692864b4ea0d4632ce8bb44c206644fa312
+  const port = process.env.PORT;
+  await app.listen(port);
 }
 bootstrap();
