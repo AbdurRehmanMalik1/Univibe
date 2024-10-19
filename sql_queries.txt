@@ -1,6 +1,4 @@
-Create empty migration ---> npm run typeorm migration:create -- src/migration/CreateUserTable
-run migration --> npm run typeorm migration:run
-revert migration --> npm run typeorm migration:revert
+
 
 
 CREATE TABLE User (
