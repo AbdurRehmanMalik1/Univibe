@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/signup/signup.dart';
 
 // These two bottom packages are for converting data 
 // and sending API call
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 // Top 2
-// void main() {
-//   runApp(const MyApp());
-// }
-void main(){
-  runApp(
-    const SignUpPage()
-  );
+void main() {
+  runApp(const SignUpPage());
 }
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SignUpPage extends StatelessWidget {
+  const SignUpPage({super.key});
 
   // This widget is the root of your application.
   @override
@@ -70,10 +64,9 @@ class _MyHomePageState extends State<MyHomePage> {
   // Function to fetch user data from the API
   void _getUserIds() async {
     http.Response response = await http.get(Uri.parse('http://localhost:3000/users'));
-
     if (response.statusCode == 200) {
       var retrievedUsers = jsonDecode(response.body); // Decoding JSON data
-      
+      print(retrievedUsers);
       // You can now work with the list of users
       // If you want to work with user IDs and other details:
       // Assuming the retrievedUsers is a List of user objects
@@ -93,42 +86,81 @@ class _MyHomePageState extends State<MyHomePage> {
         // title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+        child:Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black,
+              width: 2.0
             ),
-            const Text(
-              'Users Data:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            // Display user data in a ListView if available
-            _users.isEmpty
-                ? const Text('No users data available')
-                : Expanded(
-                    child: ListView.builder(
-                      itemCount: _users.length,
-                      itemBuilder: (context, index) {
-                        var user = _users[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                          child: ListTile(
-                            title: Text('ID: ${user['id']}'),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Name: ${user['name']}'),
-                                Text('Email: ${user['email']}'),
-                                Text('Password: ${user['password']}'),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+            borderRadius: BorderRadius.circular(10) ,
+          ),
+          padding: const EdgeInsets.only(
+            top:20,
+            bottom: 40,
+            left: 20,
+            right:20
+          ),
+          child: Column(
+             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment:MainAxisAlignment.start,
+            children: <Widget>[
+              const Text(
+                'Sign Up',
+                style: TextStyle(
+                  fontSize: 30, // Set the font size here
+                ),
+              ),
+              const SizedBox(height: 60,),  
+              //second row (after sign up)
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 750, // Set your desired max width here
+                ),
+                child: const FractionallySizedBox(
+                  widthFactor: 0.5, // The width factor will take up 50% of the parent's width
+                  child: const TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Enter Your Email',
+                      border: OutlineInputBorder(),
                     ),
+                    keyboardType: TextInputType.emailAddress,
                   ),
-          ],
+                ),
+              ),
+              const SizedBox(height: 20,),
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 750, // Set your desired max width here
+                ),
+                child: const FractionallySizedBox(
+                  widthFactor: 0.5, // The width factor will take up 50% of the parent's width
+                  child: const TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Enter Your Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20,),
+              Padding(
+                padding: const EdgeInsets.all(10.0), // Padding around the button
+                child: Container(
+                  width: 170, // Set your desired width here
+                  //height: 50, // Set your desired height here
+                  child: TextButton(
+                    onPressed: _getUserIds,
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Sign Up'),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
