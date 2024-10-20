@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -35,6 +35,10 @@ export class UserService {
     return hashedPassword;
   }
 
+  /*
+    Sign up api calls
+  */
+
   async sendVerificationCode(email: string, password: string): Promise<void> {
     const existingUser = await this.userRepository.findOne({
       where: { email },
@@ -62,13 +66,6 @@ export class UserService {
     this.temporaryData.set(email, { ...storedData, verified: true });
     return true;
   }
-
-  // async storeTemporaryUser(email: string): Promise<void> {
-  //   const storedData = this.temporaryData.get(email);
-  //   if (!storedData) {
-  //     throw new BadRequestException('Verification process incomplete');
-  //   }
-  // }
 
   async registerUser(user_name: string, email: string): Promise<User> {
     const storedData = this.temporaryData.get(email);
@@ -111,6 +108,9 @@ export class UserService {
     }
   }
 
+  /*
+    Login api calls
+  */
   async validateUser(email: string, password: string): Promise<void> {
     const user = await this.userRepository.findOne({ where: { email } });
     
@@ -125,35 +125,71 @@ export class UserService {
     }
   }
 
+  /*
+    User API calls
+  */
 
-  // Fetch all users
   findAll(): Promise<User[]> {
     return this.userRepository.find();
   }
 
-  // Add a new user
-  async addUser(
-    user_name: string,
-    email: string,
-    password_hash: string,
-  ): Promise<User> {
-    const newUser = this.userRepository.create({
-      user_name,
-      email,
-      password_hash,
-    });
-    return this.userRepository.save(newUser);
+
+  async findByEmail(findEmail: string): Promise<Partial<User>> {
+    const user = await this.userRepository.findOne({ where: { email: findEmail } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    
+    return {
+      user_id: user.user_id,
+      email: user.email,
+      user_name: user.user_name,
+    };
+  }
+  
+  async findByUserName(name: string): Promise<Partial<User>[]> {
+    const users = await this.userRepository.find({ where: { user_name: name } });
+    if (!users || users.length === 0) {
+      throw new NotFoundException('No users found with the specified name');
+    }
+  
+    return users.map(user => ({
+      user_id: user.user_id,
+      email: user.email,
+      user_name: user.user_name,
+    }));
   }
 
-  // Find a user by ID
-  async findById(id: number): Promise<User> {
-    return this.userRepository.findOne({ where: { user_id: id } });
+  async findById(id: number): Promise<Partial<User>> {
+    const user = await this.userRepository.findOne({ where: { user_id: id } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    
+    return {
+      user_id: user.user_id,
+      email: user.email,
+      user_name: user.user_name,
+    };
   }
 
-  // Update user details
-  async updateUser(id: number, updateData: Partial<User>): Promise<User> {
+  
+  async updateUser(id: number, updateData: Partial<User>): Promise<Partial<User>> {
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const allowedUpdates = ['user_name', 'profile_image'];
+    const updates = Object.keys(updateData).filter(key => allowedUpdates.includes(key));
+
+    if (updates.length === 0) {
+      throw new BadRequestException('No valid fields to update');
+    }
+
     await this.userRepository.update(id, updateData);
-    return this.findById(id); // Return the updated user
+
+    return this.findById(id);
   }
 
   // Delete user by ID

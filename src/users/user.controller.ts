@@ -10,6 +10,7 @@ import {
   HttpException,
   HttpStatus,
   UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
@@ -17,6 +18,10 @@ import { User } from './user.entity';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  /*
+    Login api calls
+  */
 
   @Post('login')
   async login(
@@ -30,17 +35,21 @@ export class UserController {
       if (error instanceof BadRequestException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
       }
-  
+
       if (error instanceof UnauthorizedException) {
         throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
       }
-  
+
       throw new HttpException(
         'Something went wrong, please try again later',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
+
+  /*
+    Sign up api calls
+  */
 
   @Post('send-verification')
   async sendVerification(
@@ -81,36 +90,68 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  // GET /users/:id - Fetch a specific user by ID
-  @Get(':id')
-  findOne(@Param('id') id: number): Promise<User> {
-    return this.userService.findById(id);
-  }
 
-  // POST /users - Create a new user
-  // @Post()
-  // create(
-  //   @Body()
-  //   createUserDto: {
-  //     user_name: string;
-  //     email: string;
-  //     password: string;
-  //   },
-  // ): Promise<User> {
-  //   const { user_name, email, password } = createUserDto;
-  //   return this.userService.addUser(user_name, email, password);
-  // }
+  /*
+    User API calls
+  */
 
-  // PATCH /users/:id - Update user details
+  //TODO: this is yet to be completed
   @Patch(':id')
-  update(
+  async updateUser(
     @Param('id') id: number,
     @Body() updateUserDto: Partial<User>,
-  ): Promise<User> {
-    return this.userService.updateUser(id, updateUserDto);
+  ): Promise<Partial<User>> {
+    try {
+      return await this.userService.updateUser(id, updateUserDto);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw new BadRequestException(error.message);
+      }
+      throw error;
+    }
   }
 
-  // DELETE /users/:id - Delete a user
+  @Get('name/:name')
+  async findByUserName(@Param('name') name: string): Promise<Partial<User>[]> {
+    try {
+      return await this.userService.findByUserName(name);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
+  }
+  
+
+  @Get('email/:email')
+  async findByEmail(@Param('email') email: string): Promise<Partial<User>> {
+    try {
+      return await this.userService.findByEmail(email);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
+  }
+  
+
+  @Get('id/:id')
+  async findById(@Param('id') id: number): Promise<Partial<User>> {
+    try {
+      return await this.userService.findById(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
+  }
+  
   @Delete(':id')
   remove(@Param('id') id: number): Promise<void> {
     return this.userService.deleteUser(id);
