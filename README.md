@@ -85,7 +85,7 @@ body:
 }
 
 
-## signup
+## login
 
 /users/login
 
