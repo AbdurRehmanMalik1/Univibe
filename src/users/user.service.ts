@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -30,7 +30,7 @@ export class UserService {
   ) {}
 
   async hashPassword(password: string): Promise<string> {
-    const saltRounds = 10; // You can adjust the salt rounds for security
+    const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     return hashedPassword;
   }
@@ -63,12 +63,12 @@ export class UserService {
     return true;
   }
 
-  async storeTemporaryUser(email: string): Promise<void> {
-    const storedData = this.temporaryData.get(email);
-    if (!storedData) {
-      throw new BadRequestException('Verification process incomplete');
-    }
-  }
+  // async storeTemporaryUser(email: string): Promise<void> {
+  //   const storedData = this.temporaryData.get(email);
+  //   if (!storedData) {
+  //     throw new BadRequestException('Verification process incomplete');
+  //   }
+  // }
 
   async registerUser(user_name: string, email: string): Promise<User> {
     const storedData = this.temporaryData.get(email);
@@ -106,22 +106,25 @@ export class UserService {
     } catch (error) {
       throw new HttpException(
         'Failed to send verification email, please try again later',
-        HttpStatus.INTERNAL_SERVER_ERROR, // Returns HTTP status 500
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
 
-  async validateUser(email: string, password: string): Promise<boolean> {
+  async validateUser(email: string, password: string): Promise<void> {
     const user = await this.userRepository.findOne({ where: { email } });
     
     if (!user) {
-      return false;
+      throw new BadRequestException('User not found');
     }
   
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-    return isPasswordValid;
+    
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid password');
+    }
   }
-  
+
 
   // Fetch all users
   findAll(): Promise<User[]> {

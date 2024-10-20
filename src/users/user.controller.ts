@@ -9,6 +9,7 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
@@ -22,16 +23,16 @@ export class UserController {
     @Body() { email, password }: { email: string; password: string },
   ): Promise<{ message: string }> {
     try {
-      const isValid = await this.userService.validateUser(email, password);
-      
-      if (!isValid) {
-        throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-      }
-  
+      await this.userService.validateUser(email, password);
+
       return { message: 'Login successful' };
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+  
+      if (error instanceof UnauthorizedException) {
+        throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
       }
   
       throw new HttpException(
@@ -73,7 +74,7 @@ export class UserController {
   ): Promise<User> {
     return this.userService.registerUser(user_name, email);
   }
-  
+
   // GET /users - Fetch all users
   @Get()
   findAll(): Promise<User[]> {

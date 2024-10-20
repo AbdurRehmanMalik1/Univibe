@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
   entities: [__dirname + '/**/*.entity{.ts,.js}'], // Your entity paths
   migrations: ['src/migration/*.ts'],
   synchronize: true, // Auto-sync entities with DB (disable in production)
-  logging: true,
+  logging: false,
   extra: {
     encrypt: true,
     trustServerCertificate: false,
