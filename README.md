@@ -3,24 +3,39 @@
 
 ### this is an example of how to handle api calls
 
-if (response.ok) {
-
-  const data = await response.json();
-  
-  console.log(data.message); // 'Login successful'
-  
-} else if (response.status === 401) {
-
-  console.log('Invalid credentials');
-  
-} else if (response.status === 400) {
-
-  console.log('User not found');
-  
-} else {
-
-  console.log('An unexpected error occurred');
-  
+Future<void> loginUser(String email, String password) async {
+  final url = Uri.parse('http://your-api-url/users/login');
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'email': email,
+        'password': password,
+      }),
+    );
+    if (response.statusCode == 200) {
+      setState(() {
+        _message = 'Login successful';
+      });
+    } else if (response.statusCode == 401) {
+      setState(() {
+        _message = 'Invalid credentials';
+      });
+    } else if (response.statusCode == 400) {
+      setState(() {
+        _message = 'User not found';
+      });
+    } else {
+      setState(() {
+        _message = 'An unexpected error occurred';
+      });
+    }
+  } catch (error) {
+    setState(() {
+      _message = 'Network error: $error';
+    });
+  }
 }
 
 
