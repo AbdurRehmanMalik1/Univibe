@@ -1,16 +1,29 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 
-@Entity()  // Marks this class as a database entity
+@Entity()
 export class User {
+
   @PrimaryGeneratedColumn()
-  id: number;  // Primary key, auto-generated
+  user_id: number;
 
-  @Column()
-  name: string;  // Column for user name
+  @Column({ type: 'varchar', length: 100, unique: true })
+  email: string;
 
-  @Column({ unique: true })
-  email: string;  // Unique column for user email
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  password_hash: string | null;
 
-  @Column()
-  password: string;  // Column for user password
+  @Column({ type: 'varchar', length: 255, unique: true })
+  user_name: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  profile_pic_url: string | null;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  oauth_provider: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  oauth_id: string | null;
+
+  @CreateDateColumn({ type: 'datetime', default: () => 'GETDATE()' })
+  created_at: Date;
 }
