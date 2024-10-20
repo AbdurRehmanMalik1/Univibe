@@ -6,6 +6,7 @@ import { User } from './user.entity';
 import * as crypto from 'crypto';
 import * as nodemailer from 'nodemailer';
 import * as dotenv from 'dotenv';
+import * as bcrypt from 'bcrypt';
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
@@ -27,6 +28,12 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
+
+  async hashPassword(password: string): Promise<string> {
+    const saltRounds = 10; // You can adjust the salt rounds for security
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    return hashedPassword;
+  }
 
   async sendVerificationCode(email: string, password: string): Promise<void> {
     const existingUser = await this.userRepository.findOne({
@@ -72,10 +79,11 @@ export class UserService {
       );
     }
 
+    const hashedPassword = await this.hashPassword(storedData.password);
     const newUser = this.userRepository.create({
       user_name,
       email,
-      password_hash: storedData.password,
+      password_hash: hashedPassword,
     });
 
     const savedUser = await this.userRepository.save(newUser);
@@ -102,6 +110,18 @@ export class UserService {
       );
     }
   }
+
+  async validateUser(email: string, password: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    
+    if (!user) {
+      return false;
+    }
+  
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    return isPasswordValid;
+  }
+  
 
   // Fetch all users
   findAll(): Promise<User[]> {

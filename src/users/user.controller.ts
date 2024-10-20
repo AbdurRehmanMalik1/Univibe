@@ -7,6 +7,8 @@ import {
   Patch,
   Delete,
   BadRequestException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
@@ -14,6 +16,30 @@ import { User } from './user.entity';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Post('login')
+  async login(
+    @Body() { email, password }: { email: string; password: string },
+  ): Promise<{ message: string }> {
+    try {
+      const isValid = await this.userService.validateUser(email, password);
+      
+      if (!isValid) {
+        throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+      }
+  
+      return { message: 'Login successful' };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+  
+      throw new HttpException(
+        'Something went wrong, please try again later',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   @Post('send-verification')
   async sendVerification(
@@ -26,23 +52,21 @@ export class UserController {
       if (error instanceof BadRequestException) {
         return { message: error.message };
       }
-      throw error; // Re-throw other errors to be handled by the global error handler
+      throw error;
     }
   }
 
-  // Step 2: User submits the verification code
   @Post('verify-code')
   async verifyCode(
     @Body() { email, code }: { email: string; code: string },
   ): Promise<{ message: string }> {
     const isVerified = await this.userService.verifyCode(email, code);
     if (!isVerified) {
-      return { message: 'Invalid verification code. Please try again.' }; // Return this if the code is not verified
+      return { message: 'Invalid verification code. Please try again.' };
     }
-    return { message: 'Code verified. Proceed to send your username.' }; // Return this if the code is verified
+    return { message: 'Code verified. Proceed to send your username.' };
   }
 
-  // Step 3: User submits username to complete registration
   @Post('register')
   async registerUser(
     @Body() { email, user_name }: { email: string; user_name: string },
