@@ -85,5 +85,17 @@ body:
 }
 
 
+## signup
 
+/users/login
+
+body:
+
+{
+
+  "email": "",
+
+  "password": ""
+
+}
 
