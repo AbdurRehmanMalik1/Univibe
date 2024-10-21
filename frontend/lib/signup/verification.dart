@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 class VerificationPage extends StatefulWidget {
   final String email; // Add this line to accept the passed email
 
@@ -12,12 +14,22 @@ class VerificationPage extends StatefulWidget {
 class _VerificationPageState extends State<VerificationPage> {
   final TextEditingController _verificationCodeController = TextEditingController();
   String _errorMessage = '';
-  String sentCode = '123456'; // Hardcoded sent code for now
 
-  void _verifyCode() {
+  //String sentCode = '123456'; // Hardcoded sent code for now
+
+  void _verifyCode() async{
     String enteredCode = _verificationCodeController.text;
+    Uri url =Uri.parse("http://localhost:3000/users/verify-code");
 
-    if (enteredCode == sentCode) {
+    final response = await http.post(url
+    , body:jsonEncode({
+      'email':widget.email,
+      'code':enteredCode
+    }),
+      headers: {'Content-Type': 'application/json'}, // Set content type for JSON 
+    );
+    var reponseBody = jsonDecode(response.body);
+    if (enteredCode == reponseBody['code']) {
       // Code is correct, navigate to the SuccessPage
       Navigator.push(
         context,
@@ -26,7 +38,12 @@ class _VerificationPageState extends State<VerificationPage> {
     } else {
       // Show an error message if the code doesn't match
       setState(() {
-        _errorMessage = 'Verification code doesn\'t match';
+        if(reponseBody['message']!=null){
+          _errorMessage = reponseBody['message'];
+        }
+        else{
+           _errorMessage = "Unknown Error Try again later";
+        }
       });
     }
   }

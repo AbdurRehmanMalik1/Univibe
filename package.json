@@ -20,7 +20,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "flutter:run": "cd frontend && flutter run -d chrome --web-port=5000",
-    "flutter:build": "cd frontend && flutter build"
+    "flutter:build": "cd frontend && flutter build",
+    "connect-db":"node database/db_connection.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
