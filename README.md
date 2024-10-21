@@ -99,3 +99,8 @@ body:
 
 }
 
+# JWT working
+
+- JWT will be created during login and passed to client through response
+- Client will pass JWT inside of header of each request
+- 
