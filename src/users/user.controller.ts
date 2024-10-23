@@ -14,38 +14,15 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly authService: AuthService,
+  ) {}
 
-  /*
-    Login api calls
-  */
-
-  @Post('login')
-  async login(
-    @Body() { email, password }: { email: string; password: string },
-  ): Promise<{ message: string }> {
-    try {
-      await this.userService.validateUser(email, password);
-
-      return { message: 'Login successful' };
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      }
-
-      if (error instanceof UnauthorizedException) {
-        throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
-      }
-
-      throw new HttpException(
-        'Something went wrong, please try again later',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
 
   /*
     Sign up api calls
@@ -90,7 +67,6 @@ export class UserController {
     return this.userService.findAll();
   }
 
-
   /*
     User API calls
   */
@@ -125,7 +101,6 @@ export class UserController {
       throw error;
     }
   }
-  
 
   @Get('email/:email')
   async findByEmail(@Param('email') email: string): Promise<Partial<User>> {
@@ -138,7 +113,6 @@ export class UserController {
       throw error;
     }
   }
-  
 
   @Get('id/:id')
   async findById(@Param('id') id: number): Promise<Partial<User>> {
@@ -151,7 +125,7 @@ export class UserController {
       throw error;
     }
   }
-  
+
   @Delete(':id')
   remove(@Param('id') id: number): Promise<void> {
     return this.userService.deleteUser(id);

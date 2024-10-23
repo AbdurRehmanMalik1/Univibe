@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from "typeorm";
+import { UserContacts } from 'src/userContacts/userContacts.entity';
 
 @Entity()
 export class User {
@@ -26,4 +27,7 @@ export class User {
 
   @CreateDateColumn({ type: 'datetime', default: () => 'GETDATE()' })
   created_at: Date;
+
+  @OneToMany(() => UserContacts, (userContacts) => userContacts.user)
+  userContacts: UserContacts[];
 }

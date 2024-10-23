@@ -1,0 +1,63 @@
+import {
+  Controller,
+  Post,
+  Body,
+  UnauthorizedException,
+  HttpException,
+  BadRequestException,
+  HttpStatus,
+  BadGatewayException,
+  NotFoundException,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { UserService } from 'src/users/user.service'; // Assuming you have a UsersService to handle user data
+import { AuthPayloadDTO } from './dto/auth.dto';
+import { NotFoundError } from 'rxjs';
+import { AuthGuard } from '@nestjs/passport';
+
+@Controller('auth')
+export class AuthController {
+  constructor(
+    private authService: AuthService,
+    private userService: UserService
+  ) {}
+
+  /*
+    Login api calls
+  */
+  
+  @Post('login')
+  //@UseGuards(AuthGuard('jwt'))
+  async login(
+    @Body() body: { email: string; password: string }
+  ): Promise<{ message: string; access_token?: string }> {
+    try {
+
+      const { email, password } = body;
+      
+      const user = await this.userService.validateUser(email, password);
+
+      if (!user) {
+        throw new HttpException('user not found', HttpStatus.BAD_REQUEST);
+      }
+
+      const token = await this.authService.generateToken(user);
+
+      return { message: 'Login successful', access_token: token };
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof UnauthorizedException ||
+        error instanceof BadGatewayException
+      ) {
+        throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
+      }
+
+      throw new HttpException(
+        'Something went wrong, please try again later',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+}
