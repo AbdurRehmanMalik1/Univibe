@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/signup/signup_username.dart';
 import 'package:http/http.dart' as http;
 class VerificationPage extends StatefulWidget {
   final String email; // Add this line to accept the passed email
@@ -28,18 +29,20 @@ class _VerificationPageState extends State<VerificationPage> {
     }),
       headers: {'Content-Type': 'application/json'}, // Set content type for JSON 
     );
-    var reponseBody = jsonDecode(response.body);
-    if (enteredCode == reponseBody['code']) {
-      // Code is correct, navigate to the SuccessPage
+    var responseBody = jsonDecode(response.body);
+    print(responseBody);
+    if (response.statusCode >=200 && response.statusCode<=299) {
+      print("Switching to success page");
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const SuccessPage()),
+        MaterialPageRoute(builder:(context)=>SignupUsername(email: widget.email,),
+        ),
       );
     } else {
       // Show an error message if the code doesn't match
       setState(() {
-        if(reponseBody['message']!=null){
-          _errorMessage = reponseBody['message'];
+        if(responseBody['message']!=null){
+          _errorMessage = responseBody['message'];
         }
         else{
            _errorMessage = "Unknown Error Try again later";
@@ -135,22 +138,3 @@ class _VerificationPageState extends State<VerificationPage> {
 }
 
 
-// Next screen after successful verification
-class SuccessPage extends StatelessWidget {
-  const SuccessPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Verification Successful'),
-      ),
-      body: const Center(
-        child: Text(
-          'Welcome to the app!',
-          style: TextStyle(fontSize: 24),
-        ),
-      ),
-    );
-  }
-}

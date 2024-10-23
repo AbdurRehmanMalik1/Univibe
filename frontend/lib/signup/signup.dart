@@ -41,29 +41,22 @@ class _SignUpPageState extends State<SignUpPage> {
     String email = _emailController.text;
     String password = _passwordController.text;
     String confirmPassword = _confirmPasswordController.text;
-    // String email = 'hassanyousaf941@gmail.com';
-    // String password = 'a12345678';
-    // String confirmPassword = password;
     if (!_isEmailValid(email)) {
-      // Show an error message if the email is not valid
       setState(() {
         _errorMessage = 'Please enter a valid email';
       });
     } else if (!_isPasswordValid(password)) {
-      // Show an error message if the password is not valid
       setState(() {
         _errorMessage = 'Password must contain both letters and numbers';
       });
     } else if (password != confirmPassword) {
-      // Show an error message if passwords don't match
       setState(() {
         _errorMessage = 'Passwords do not match';
       });
     } else {
-      // Navigate to the VerificationPage and pass the email
       print("Sending post request");
       Uri url = Uri.parse("http://localhost:3000/users/send-verification");
-      var responseBody;
+      
       try{
         //sending sign in request
         final response = await http.post(url
@@ -73,7 +66,7 @@ class _SignUpPageState extends State<SignUpPage> {
         }),
           headers: {'Content-Type': 'application/json'}, // Set content type for JSON 
         );
-        responseBody =jsonDecode(response.body);
+        var responseBody = jsonDecode(response.body);
         print(responseBody);
         //const response = jsonDecode(serverResponse)
         if(response.statusCode == 201){
@@ -126,7 +119,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
               const SizedBox(height: 60),
-
               // Email TextField
               ConstrainedBox(
                 constraints: const BoxConstraints(
