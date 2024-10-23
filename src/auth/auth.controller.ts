@@ -20,40 +20,33 @@ import { AuthGuard } from '@nestjs/passport';
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
   ) {}
 
   /*
     Login api calls
   */
-  
+
   @Post('login')
   //@UseGuards(AuthGuard('jwt'))
   async login(
-    @Body() body: { email: string; password: string }
+    @Body() body: { email: string; password: string },
   ): Promise<{ message: string; access_token?: string }> {
     try {
-
       const { email, password } = body;
-      
+
       const user = await this.userService.validateUser(email, password);
-
-      if (!user) {
-        throw new HttpException('user not found', HttpStatus.BAD_REQUEST);
-      }
-
       const token = await this.authService.generateToken(user);
 
       return { message: 'Login successful', access_token: token };
     } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof UnauthorizedException ||
-        error instanceof BadGatewayException
-      ) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof UnauthorizedException) {
+        throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
+      } else if (error instanceof BadGatewayException) {
         throw new HttpException(error.message, HttpStatus.UNAUTHORIZED);
       }
-
       throw new HttpException(
         'Something went wrong, please try again later',
         HttpStatus.INTERNAL_SERVER_ERROR,

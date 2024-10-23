@@ -11,6 +11,8 @@ import {
   HttpStatus,
   UnauthorizedException,
   NotFoundException,
+  BadGatewayException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
@@ -22,7 +24,6 @@ export class UserController {
     private readonly userService: UserService,
     private readonly authService: AuthService,
   ) {}
-
 
   /*
     Sign up api calls
@@ -37,9 +38,19 @@ export class UserController {
       return { message: 'Verification code sent to email' };
     } catch (error) {
       if (error instanceof BadRequestException) {
-        return { message: error.message };
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof BadGatewayException) {
+        throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+      } else if (error instanceof InternalServerErrorException) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
-      throw error;
+      throw new HttpException(
+        'An unexpected error occurred.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -47,18 +58,38 @@ export class UserController {
   async verifyCode(
     @Body() { email, code }: { email: string; code: string },
   ): Promise<{ message: string }> {
-    const isVerified = await this.userService.verifyCode(email, code);
-    if (!isVerified) {
-      return { message: 'Invalid verification code. Please try again.' };
+    try {
+      await this.userService.verifyCode(email, code);
+      return { message: 'Code verified. Proceed to send your username.' };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException(
+        'An unexpected error occurred.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-    return { message: 'Code verified. Proceed to send your username.' };
   }
 
   @Post('register')
   async registerUser(
     @Body() { email, user_name }: { email: string; user_name: string },
-  ): Promise<User> {
-    return this.userService.registerUser(user_name, email);
+  ): Promise<{ message: string; user: User }> {
+    try {
+      const user = await this.userService.registerUser(user_name, email);
+      return { message: 'User registered successfully', user };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException(
+        'An unexpected error occurred.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   // GET /users - Fetch all users

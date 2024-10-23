@@ -15,7 +15,6 @@ import { AuthPayloadDTO } from './dto/auth.dto';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-//TODO: JWT not being generated properly
 @Injectable()
 export class AuthService {
   constructor(
@@ -28,11 +27,9 @@ export class AuthService {
   async generateToken(user: User): Promise<string> {
     try {
       const payload = { user_id: user.user_id, email: user.email };
-      return this.jwtService.sign(payload, {secret: process.env.JWT_SECRET});
+      return this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
     } catch (error) {
       throw new BadGatewayException('Token generation failed');
     }
   }
-
-
 }
