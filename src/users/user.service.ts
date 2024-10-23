@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -136,18 +141,22 @@ export class UserService {
   /*
     Login api calls
   */
-  async validateUser(email: string, password: string): Promise<void> {
+
+  async validateUser(email: string, password: string): Promise<User> {
+
     const user = await this.userRepository.findOne({ where: { email } });
-    
+
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new NotFoundException('User not found');
     }
-  
+
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-    
+
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
     }
+
+    return user;
   }
 
   /*
@@ -158,27 +167,30 @@ export class UserService {
     return this.userRepository.find();
   }
 
-
   async findByEmail(findEmail: string): Promise<Partial<User>> {
-    const user = await this.userRepository.findOne({ where: { email: findEmail } });
+    const user = await this.userRepository.findOne({
+      where: { email: findEmail },
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    
+
     return {
       user_id: user.user_id,
       email: user.email,
       user_name: user.user_name,
     };
   }
-  
+
   async findByUserName(name: string): Promise<Partial<User>[]> {
-    const users = await this.userRepository.find({ where: { user_name: name } });
+    const users = await this.userRepository.find({
+      where: { user_name: name },
+    });
     if (!users || users.length === 0) {
       throw new NotFoundException('No users found with the specified name');
     }
-  
-    return users.map(user => ({
+
+    return users.map((user) => ({
       user_id: user.user_id,
       email: user.email,
       user_name: user.user_name,
@@ -190,7 +202,7 @@ export class UserService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    
+
     return {
       user_id: user.user_id,
       email: user.email,
@@ -198,15 +210,19 @@ export class UserService {
     };
   }
 
-  
-  async updateUser(id: number, updateData: Partial<User>): Promise<Partial<User>> {
+  async updateUser(
+    id: number,
+    updateData: Partial<User>,
+  ): Promise<Partial<User>> {
     const user = await this.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
     const allowedUpdates = ['user_name', 'profile_image'];
-    const updates = Object.keys(updateData).filter(key => allowedUpdates.includes(key));
+    const updates = Object.keys(updateData).filter((key) =>
+      allowedUpdates.includes(key),
+    );
 
     if (updates.length === 0) {
       throw new BadRequestException('No valid fields to update');
