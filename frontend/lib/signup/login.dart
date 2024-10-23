@@ -47,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {});
       return;
     }
-    Uri url = Uri.parse("http://localhost:3000/users/login");
+    Uri url = Uri.parse("http://localhost:3000/auth/login");
     try {
       final response = await http.post(
         url,
