@@ -103,4 +103,8 @@ body:
 
 - JWT will be created during login and passed to client through response
 - Client will pass JWT inside of header of each request
-- 
+
+-key: Authorization
+-value: Bearer example-token
+
+(the space is important after Bearer. This token will be passed in the header of each request made after log in)
