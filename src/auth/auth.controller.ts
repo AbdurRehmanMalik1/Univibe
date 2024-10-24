@@ -9,12 +9,15 @@ import {
   BadGatewayException,
   NotFoundException,
   UseGuards,
+  Get,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from 'src/users/user.service'; // Assuming you have a UsersService to handle user data
 import { AuthPayloadDTO } from './dto/auth.dto';
 import { NotFoundError } from 'rxjs';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from './jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -28,7 +31,6 @@ export class AuthController {
   */
 
   @Post('login')
-  //@UseGuards(AuthGuard('jwt'))
   async login(
     @Body() body: { email: string; password: string },
   ): Promise<{ message: string; access_token?: string }> {
@@ -52,5 +54,11 @@ export class AuthController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Get('status')
+  @UseGuards(JwtAuthGuard)
+  async status() {
+    return { message: 'JWT is valid and guard is working.' };
   }
 }

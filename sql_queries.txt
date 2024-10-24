@@ -16,9 +16,16 @@ CREATE TABLE UserContacts (
   contact_value VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE Interests (
+  interest_id INT PRIMARY KEY IDENTITY,
+  user_id INT FOREIGN KEY REFERENCES Users(user_id) NOT NULL,
+  activity_type_id INT FOREIGN KEY REFERENCES ActivityType(activity_type_id) NOT NULL,
+  UNIQUE(user_id, activity_type_id)
+);
+
 CREATE TABLE UserPreferences (
   user_id INT PRIMARY KEY FOREIGN KEY REFERENCES Users(user_id) ON DELETE CASCADE,
-  privacy_setting VARCHAR(50) CHECK (privacy_setting IN ('public', 'private', 'friends only')),
+  theme enum('dark', 'light')
   notification_setting VARCHAR(50) CHECK (notification_setting IN ('all', 'mentions', 'none')),
   updated_at DATETIME DEFAULT GETDATE()
 );
@@ -46,12 +53,7 @@ CREATE TABLE PostImages (
   uploaded_at DATETIME DEFAULT GETDATE() NOT NULL
 );
 
-CREATE TABLE Interests (
-  interest_id INT PRIMARY KEY IDENTITY,
-  user_id INT FOREIGN KEY REFERENCES Users(user_id) NOT NULL,
-  activity_type_id INT FOREIGN KEY REFERENCES ActivityType(activity_type_id) NOT NULL,
-  UNIQUE(user_id, activity_type_id)
-);
+
 
 CREATE TABLE Ratings (
   rating_id INT PRIMARY KEY IDENTITY,
