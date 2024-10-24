@@ -232,6 +232,45 @@ export class UserService {
 
   // Delete user by ID
   async deleteUser(id: number): Promise<void> {
-    await this.userRepository.delete(id);
+    try {
+      const result = await this.userRepository.delete(id);
+
+      if (result.affected === 0) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+    } catch (error) {
+      throw new InternalServerErrorException('Error deleting the user');
+    }
+  }
+
+  /*
+    User Profile
+  */
+
+  async getUserProfile(userId: number): Promise<User> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { user_id: userId },
+        relations: ['userContacts'],
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
+
+      delete user.password_hash;
+      delete user.oauth_id;
+      delete user.oauth_provider;
+
+      return user;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException(
+          'An error occurred while fetching the user profile. Please try again later.',
+        );
+      }
+    }
   }
 }

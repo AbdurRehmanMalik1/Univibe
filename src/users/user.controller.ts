@@ -99,7 +99,7 @@ export class UserController {
   }
 
   /*
-    User API calls
+    User CRUD
   */
 
   //TODO: this is yet to be completed
@@ -158,7 +158,41 @@ export class UserController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number): Promise<void> {
-    return this.userService.deleteUser(id);
+  async remove(@Param('id') id: number): Promise<{ message: string }> {
+    try {
+      await this.userService.deleteUser(id);
+      return { message: 'User deleted successfully' };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof InternalServerErrorException) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      throw new HttpException(
+        'User could not be deleted, try again later',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /*
+    User Profile
+  */
+
+  @Get(':id/profile')
+  async getProfile(@Param('id') id: number): Promise<User> {
+    try {
+      return await this.userService.getUserProfile(id);
+    } catch (error) {
+      if (error instanceof NotFoundException){
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      }
+      else{
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
 }
