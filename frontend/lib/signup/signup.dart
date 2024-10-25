@@ -35,7 +35,6 @@ class _SignUpPageState extends State<SignUpPage> {
     );
     return passwordRegExp.hasMatch(password);
   }
-
   void  _signUp() async {
     print("Running the sign up");
     String email = _emailController.text;

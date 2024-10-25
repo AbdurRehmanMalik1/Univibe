@@ -12,16 +12,18 @@ import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-
+import { ActivityController } from './activity/activity.controller';
+import { ActivityService } from './activity/activity.service';
+import { Activity } from './activity/activity.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(AppDataSource.options),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User,Activity]),
     AuthModule,
   ],
-  providers: [UserService, AuthService, JwtService],  // Register the service
-  controllers: [UserController, AuthController],  // Register the controller
+  providers: [UserService, AuthService, JwtService,ActivityService],  // Register the service
+  controllers: [UserController, AuthController,ActivityController],  // Register the controller
 })
 
 export class AppModule {}
