@@ -35,9 +35,14 @@ export class AuthService {
   }
   async identifyUser(authorization: string): Promise<any> {
     try {
-      const splitAuthorization = authorization.split(' ');
-      const token = splitAuthorization[1];
+      const token = authorization?.split(' ')[1];
+
+      if (!token) {
+        throw new UnauthorizedException('No token provided');
+      }
+
       const decodedToken = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
+
       return {
         user_id: decodedToken.user_id,
         email: decodedToken.email,

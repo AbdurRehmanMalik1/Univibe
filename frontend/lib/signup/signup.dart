@@ -36,7 +36,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return passwordRegExp.hasMatch(password);
   }
   void  _signUp() async {
-    print("Running the sign up");
+    //print("Running the sign up");
     String email = _emailController.text;
     String password = _passwordController.text;
     String confirmPassword = _confirmPasswordController.text;
@@ -53,7 +53,7 @@ class _SignUpPageState extends State<SignUpPage> {
         _errorMessage = 'Passwords do not match';
       });
     } else {
-      print("Sending post request");
+      // print("Sending post request");
       Uri url = Uri.parse("http://localhost:3000/users/send-verification");
       
       try{
@@ -66,7 +66,7 @@ class _SignUpPageState extends State<SignUpPage> {
           headers: {'Content-Type': 'application/json'}, // Set content type for JSON 
         );
         var responseBody = jsonDecode(response.body);
-        print(responseBody);
+        //print(responseBody);
         //const response = jsonDecode(serverResponse)
         if(response.statusCode == 201){
             Navigator.push(
@@ -81,7 +81,7 @@ class _SignUpPageState extends State<SignUpPage> {
         } 
       }
       catch(exception){
-        print(exception);
+        //print(exception);
         setState(() {
           _errorMessage = "Please try again later";
         });
@@ -178,7 +178,7 @@ class _SignUpPageState extends State<SignUpPage> {
               // Sign Up Button
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: Container(
+                child: SizedBox(
                   width: 170,
                   child: TextButton(
                     onPressed: _signUp,
