@@ -10,7 +10,7 @@ export class Activity {
   type_name: string;
   
   
-  @OneToMany(() => Interest, (interest) => interest.activityType)
+  @OneToMany(() => Interest, (interest) => interest.activity)
   interests: Interest[];
 }
 

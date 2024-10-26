@@ -15,15 +15,18 @@ import { ConfigModule } from '@nestjs/config';
 import { ActivityController } from './activity/activity.controller';
 import { ActivityService } from './activity/activity.service';
 import { Activity } from './activity/activity.entity';
+import { InterestService } from './interests/interest.service';
+import { InterestController } from './interests/interest.controller';
+import { Interest } from './interests/interest.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(AppDataSource.options),
-    TypeOrmModule.forFeature([User,Activity]),
+    TypeOrmModule.forFeature([User,Activity,Interest]),
     AuthModule,
   ],
-  providers: [UserService, AuthService, JwtService,ActivityService],  // Register the service
-  controllers: [UserController, AuthController,ActivityController],  // Register the controller
+  providers: [UserService, AuthService, JwtService,ActivityService,InterestService],  // Register the service
+  controllers: [UserController, AuthController,ActivityController,InterestController],  // Register the controller
 })
 
 export class AppModule {}
