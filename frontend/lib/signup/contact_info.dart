@@ -9,16 +9,21 @@ class ContactInfoPage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
       return Scaffold(  
-        body:Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              child: const Text(
-                "Before Proceeding to login Enter Your Contact Information"
-              ),
-            )
-          ],
+        body:Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                child: const Text(
+                  "Before Proceeding to login Enter Your Contact Information",
+                  style: TextStyle(
+                    fontSize: 18
+                  ),
+                ),
+              )
+            ],
+          ),
         )
     );
   }

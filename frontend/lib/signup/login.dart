@@ -1,9 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/apiFolder/api_service.dart';
 import 'package:frontend/signup/signup.dart';
+import 'package:frontend/storage/authentication.dart';
+import 'package:frontend/utils/utility.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -24,16 +28,14 @@ class _LoginPageState extends State<LoginPage> {
     );
     return emailRegExp.hasMatch(email);
   }
-
-  Future<void> _login() async {
+  Future<void> _intiateLogin()async{
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
-
     if (email.isEmpty) {
       _errorMessage =
           password.isEmpty ? "Email and Password are Empty" : "Email is Empty";
       setState(() {});
-      return; 
+      return;
     }
 
     if (!_isEmailValid(email)) {
@@ -47,27 +49,19 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {});
       return;
     }
-    Uri url = Uri.parse("http://localhost:3000/auth/login");
-    try {
-      final response = await http.post(
-        url,
-        body: jsonEncode({'email': email, 'password': password}),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode >= 200 && response.statusCode <= 299) {
-        print("Login is Complete");
-      } else {
-        final responseBody = json.decode(response.body);
-        _errorMessage = responseBody['message'] ?? 'Unknown error occurred';
-      }
-    } catch (exception) {
-      _errorMessage = "Cannot login right now, try later";
+    ApiService apiService = ApiService("http://localhost:3000");  
+    try{
+       var responseBody  = await apiService.login(email,password);
+       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+       authProvider.setToken(responseBody["access_token"]);
+       print(authProvider.token);
+       _errorMessage= "";
     }
-
+    catch(exception){
+       _errorMessage = Utils.getReadableErrorMessage(exception.toString());
+    }
     setState(() {});
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -140,11 +134,14 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-                const SizedBox(height: 20,width: 0,),
+                const SizedBox(
+                  height: 20,
+                  width: 0,
+                ),
                 SizedBox(
                   width: 100,
                   child: TextButton(
-                    onPressed: _login,
+                    onPressed: _intiateLogin,
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
@@ -152,12 +149,18 @@ class _LoginPageState extends State<LoginPage> {
                     child: const Text("Login"),
                   ),
                 ),
-                const SizedBox(height: 20,width: 0,),
+                const SizedBox(
+                  height: 20,
+                  width: 0,
+                ),
                 SizedBox(
                   width: 100,
                   child: TextButton(
-                    onPressed: (){
-                      Navigator.push(context,MaterialPageRoute(builder: (context)=>const SignUpPage()));
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SignUpPage()));
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.black,

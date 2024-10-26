@@ -28,7 +28,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home:  ContactInfoPage(username: '',), // Set SignUpPage as the home page
+      // home:  ContactInfoPage(username: '',), // Set SignUpPage as the home page
+      home: LoginPage()
     );
   }
 }

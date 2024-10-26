@@ -1,18 +1,23 @@
 import 'dart:convert';
 import 'dart:math';
-
+import 'package:flutter/material.dart';
+import 'package:frontend/storage/authentication.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'verification.dart'; // Import the Verification page
+import 'verification.dart'; 
 
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+  SignUpPage({super.key});
 
+  
   @override
   _SignUpPageState createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+    
+    
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -66,8 +71,6 @@ class _SignUpPageState extends State<SignUpPage> {
           headers: {'Content-Type': 'application/json'}, // Set content type for JSON 
         );
         var responseBody = jsonDecode(response.body);
-        //print(responseBody);
-        //const response = jsonDecode(serverResponse)
         if(response.statusCode == 201){
             Navigator.push(
               context,

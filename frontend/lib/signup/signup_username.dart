@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend/signup/login.dart';
+import 'package:frontend/storage/authentication.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class SignupUsername extends StatefulWidget {
   final String email;
@@ -32,11 +34,14 @@ class _SignupUsernameState extends State<SignupUsername> {
           },
         );
 
-        if (response.statusCode >= 200 && response.statusCode <= 299) {
-          // Navigate to SuccessPage or handle success case
+        if (response.statusCode == 200) {
+          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+          authProvider.setToken("");
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const SuccessPage()),
+
           );
         } else {
           final decodedResponse = jsonDecode(response.body); // Decode JSON body
