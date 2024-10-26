@@ -35,10 +35,13 @@ export class AuthService {
   }
   async identifyUser(authorization: string): Promise<any> {
     try {
-      const splitAuthorization =  authorization.split(' ');
+      const splitAuthorization = authorization.split(' ');
       const token = splitAuthorization[1];
-      console.log(token);
-      return this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
+      const decodedToken = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
+      return {
+        user_id: decodedToken.user_id,
+        email: decodedToken.email,
+      };
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
