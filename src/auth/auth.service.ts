@@ -32,6 +32,23 @@ export class AuthService {
       throw new BadGatewayException('Token generation failed');
     }
   }
+  async identifyUser(authorization: string): Promise<any> {
+    try {
+      const token = authorization?.split(' ')[1];
 
+      if (!token) {
+        throw new UnauthorizedException('No token provided');
+      }
+
+      const decodedToken = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
+
+      return {
+        user_id: decodedToken.user_id,
+        email: decodedToken.email,
+      };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
 
 }

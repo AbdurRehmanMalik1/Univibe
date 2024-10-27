@@ -80,23 +80,6 @@ export class UserService {
     }
   }
 
-  private async sendEmail(email: string, code: string): Promise<void> {
-    const mailOptions = {
-      from: process.env.SMTP_EMAIL,
-      to: email,
-      subject: 'Email Verification Code',
-      text: `Your verification code is: ${code}`,
-    };
-
-    try {
-      await transporter.sendMail(mailOptions);
-    } catch (error) {
-      throw new BadGatewayException(
-        'Failed to send verification email, please try again later.',
-      );
-    }
-  }
-
   async verifyCode(email: string, inputCode: string): Promise<void> {
     const storedData = this.temporaryData.get(email);
 
