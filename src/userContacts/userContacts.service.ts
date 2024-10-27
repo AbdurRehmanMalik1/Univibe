@@ -13,15 +13,10 @@ export class UserContactsService {
   constructor(
     @InjectRepository(UserContacts)
     private userContactsRepository: Repository<UserContacts>,
-  ) {}
+  ) { }
 
   // Method to add a contact with uniqueness validation
-  async addContact(
-    user_id: number,
-    contact_type: string,
-    contact_value: string,
-  ): Promise<{ message: string }> {
-    // Check if the contact already exists
+  async addContact(user_id: number, contact_type: string, contact_value: string,) {
     const existingContact = await this.userContactsRepository.findOne({
       where: {
         user: { user_id },
@@ -29,22 +24,17 @@ export class UserContactsService {
         contact_value,
       },
     });
-
     if (existingContact) {
       throw new ConflictException(
         'Contact with this type and value already exists',
       );
     }
-
-    // Add the new contact
-    const newContact = this.userContactsRepository.create({
-      user: { user_id } as User, // Creating a partial user entity reference
+    await this.userContactsRepository.save({
+      user: { user_id } as User,
       contact_type,
       contact_value,
     });
 
-    await this.userContactsRepository.save(newContact);
-    return { message: 'Contact added successfully' };
   }
 
   // Method to get all contacts of a user
@@ -53,36 +43,42 @@ export class UserContactsService {
       where: { user: { user_id } },
     });
 
-    if (contacts.length === 0) {
+    if (!contacts) {
       throw new NotFoundException('No contacts found for this user');
     }
-
     return contacts;
   }
 
-  // Method to delete a contact by contact_type
-  async deleteContactByType(
-    user_id: number,
-    contact_type: string,
-  ): Promise<{ message: string }> {
-    const contactToDelete = await this.userContactsRepository.findOne({
-      where: { user: { user_id }, contact_type },
-    });
+  async replaceContact(user_id: number, contact_id, contact_type: string, contact_value: string) {
 
-    if (!contactToDelete) {
-      throw new NotFoundException(
-        `Contact of type '${contact_type}' not found for this user`,
-      );
+    const replacementContact: Partial<UserContacts> = {
+      contact_type,
+      contact_value
+    };
+    const searchingCriteria: Partial<UserContacts> = {
+      user: { user_id } as User,
+      contact_id
+    };
+    const result = await this.userContactsRepository.update(searchingCriteria, replacementContact);
+
+    if (result.affected === 0) {
+      throw new NotFoundException('No contact found with the given ID for this user.');
     }
+  }
 
-    await this.userContactsRepository.remove(contactToDelete);
-    return { message: 'Contact deleted successfully' };
+  async deleteContactById(user_id: number, contact_id: number) {
+    const deletionContact: Partial<UserContacts> = {
+      user: { user_id } as User,
+      contact_id
+    };
+    const result = await this.userContactsRepository.delete(deletionContact);
+    if (result.affected === 0) {
+      throw new NotFoundException('No contact found with the given ID for this user.');
+    }
   }
 
 
-  /* 
-    May not need this
-  */
+
   async clearContactValue(
     user_id: number,
     contact_type: string,

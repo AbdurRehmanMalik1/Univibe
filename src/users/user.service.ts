@@ -19,11 +19,11 @@ dotenv.config();
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.SMTP_EMAIL,
-    pass: process.env.SMTP_PASSWORD,
+    user: process.env.SMTP_EMAIL, // Your email from environment variables
+    pass: process.env.SMTP_PASSWORD, // Your app password from environment variables
   },
   tls: {
-    rejectUnauthorized: false, //Allows self-signed certificates (not recommended for production)
+    rejectUnauthorized: false, // Allows self-signed certificates (not recommended for production)
   },
 });
 
@@ -130,10 +130,50 @@ export class UserService {
     });
 
     const savedUser = await this.userRepository.save(newUser);
-
+    
     this.temporaryData.delete(email);
 
     return savedUser;
+  }
+
+  private async sendEmail(email: string, code: string): Promise<void> {
+    const mailOptions = {
+      from: `"Fast Media Support" <${process.env.SMTP_EMAIL}>`, // Include a sender name
+      to: email,
+      subject: 'Verify Your Email Address',
+      text: `Dear User,
+  
+        Thank you for signing up for Fast Media!
+        
+        To complete your registration, please use the following verification code:
+        
+        Verification Code: ${code}
+        
+        If you did not create this account, you can safely ignore this email.
+        
+        Best regards,
+        The Fast Media Team
+        
+        For assistance, please contact support at support@fastmedia.com
+        `,
+          html: `<p>Dear User,</p>
+                <p>Thank you for signing up for <strong>Fast Media</strong>!</p>
+                <p>To complete your registration, please use the following verification code:</p>
+                <h2 style="color: #2e6c80;">${code}</h2>
+                <p>If you did not create this account, you can safely ignore this email.</p>
+                <p>Best regards,<br>The Fast Media Team</p>
+                <p style="font-size: small; color: #888888;">For assistance, please contact support at <a href="mailto:support@fastmedia.com">support@fastmedia.com</a></p>`,
+    };     
+    console.log(mailOptions);
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        'Failed to send verification email, please try again later',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /*

@@ -21,7 +21,7 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   // Method to generate the token
   async generateToken(user: User): Promise<string> {
@@ -32,4 +32,6 @@ export class AuthService {
       throw new BadGatewayException('Token generation failed');
     }
   }
+
+
 }
