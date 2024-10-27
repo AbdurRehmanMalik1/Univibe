@@ -1,9 +1,8 @@
-
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { User } from './users/user.entity';  // Import the User entity
+import { User } from './users/user.entity'; // Import the User entity
 import { UserService } from './users/user.service';
 import { UserController } from './users/user.controller';
 import { AppDataSource } from './data-source';
@@ -21,16 +20,46 @@ import { Interest } from './interests/interest.entity';
 import { UserContactsService } from './userContacts/userContacts.service';
 import { UserContacts } from './userContacts/userContacts.entity';
 import { UserContactController } from './userContacts/userContacts.controller';
+
+import { ScheduleModule } from '@nestjs/schedule';
+import { PostCleanupService } from './post-cleanup.service';
+import { PostController } from './posts/post.controller';
+import { PostService } from './posts/post.service';
+import { PostImage } from './postImages/postImage.entity';
+import { Post } from './posts/post.entity';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(AppDataSource.options),
-    TypeOrmModule.forFeature([User,Activity,Interest,UserContacts]),
+    TypeOrmModule.forFeature([
+      User,
+      Activity,
+      Interest,
+      UserContacts,
+      Post,
+      PostImage,
+    ]),
+    ScheduleModule.forRoot(),
     AuthModule,
   ],
-  providers: [UserService, AuthService, JwtService,ActivityService,InterestService,UserContactsService],  // Register the service
-  controllers: [UserController, AuthController,ActivityController,InterestController,UserContactController],  // Register the controller
+  providers: [
+    UserService,
+    AuthService,
+    JwtService,
+    ActivityService,
+    InterestService,
+    UserContactsService,
+    PostService,
+    PostCleanupService,
+  ], // Register the service
+  controllers: [
+    UserController,
+    AuthController,
+    ActivityController,
+    InterestController,
+    UserContactController,
+    PostController,
+  ], // Register the controller
 })
-
 export class AppModule {}
-

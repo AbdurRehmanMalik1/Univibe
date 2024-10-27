@@ -1,5 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from "typeorm";
 import {Interest} from '../interests/interest.entity'
+import { Post } from 'src/posts/post.entity';
+
 @Entity()
 export class Activity {
 
@@ -12,6 +14,9 @@ export class Activity {
   
   @OneToMany(() => Interest, (interest) => interest.activity)
   interests: Interest[];
+
+  @OneToMany(() => Post, (post) => post.activityType)
+  posts: Post[];
 }
 
 

@@ -1,3 +1,7 @@
+
+Lat Long (31.484643, 74.301241)
+
+
 CREATE TABLE User (
   user_id INT PRIMARY KEY IDENTITY AUTO INCREMENT,
   email VARCHAR(100) UNIQUE NOT NULL,
@@ -53,11 +57,9 @@ CREATE TABLE PostImages (
   uploaded_at DATETIME DEFAULT GETDATE() NOT NULL
 );
 
-
-
 CREATE TABLE Ratings (
   rating_id INT PRIMARY KEY IDENTITY,
-  reviewer_id INT FOREIGN KEY REFERENCES Users(user_id) NOT NULL,
+  reviewer_user_id INT FOREIGN KEY REFERENCES Users(user_id) NOT NULL,
   reviewed_user_id INT FOREIGN KEY REFERENCES Users(user_id) NOT NULL,
   rating INT CHECK (rating BETWEEN 1 AND 5) NOT NULL,
   created_at DATETIME DEFAULT GETDATE() NOT NULL,
