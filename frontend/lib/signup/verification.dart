@@ -1,53 +1,46 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/apiFolder/api_service.dart';
 import 'package:frontend/signup/signup_username.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+
 class VerificationPage extends StatefulWidget {
   final String email; // Add this line to accept the passed email
 
-  VerificationPage({required this.email, super.key}); // Update constructor to accept email
+  VerificationPage(
+      {required this.email, super.key}); // Update constructor to accept email
 
   @override
   _VerificationPageState createState() => _VerificationPageState();
 }
 
 class _VerificationPageState extends State<VerificationPage> {
-  final TextEditingController _verificationCodeController = TextEditingController();
+  final TextEditingController _verificationCodeController =
+      TextEditingController();
   String _errorMessage = '';
 
   //String sentCode = '123456'; // Hardcoded sent code for now
 
-  void _verifyCode() async{
+  void _verifyCode() async {
     String enteredCode = _verificationCodeController.text;
-    Uri url =Uri.parse("http://localhost:3000/users/verify-code");
+    ApiService apiService = ApiService("http://localhost:3000");
 
-    final response = await http.post(url
-    , body:jsonEncode({
-      'email':widget.email,
-      'code':enteredCode
-    }),
-      headers: {'Content-Type': 'application/json'}, // Set content type for JSON 
-    );
-    var responseBody = jsonDecode(response.body);
-    print(responseBody);
-    if (response.statusCode >=200 && response.statusCode<=299) {
-      print("Switching to success page");
+    Response? response = await apiService.sendVerificationCode(
+        context, widget.email, enteredCode);
+    if (response != null &&
+        response.statusCode >= 200 &&
+        response.statusCode < 300) {
       Navigator.push(
-        context,
-        MaterialPageRoute(builder:(context)=>SignupUsername(email: widget.email,),
-        ),
-      );
+          context,
+          MaterialPageRoute(
+              builder: (context) => SignupUsername(email: widget.email)));
     } else {
-      // Show an error message if the code doesn't match
-      setState(() {
-        if(responseBody['message']!=null){
-          _errorMessage = responseBody['message'];
-        }
-        else{
-           _errorMessage = "Unknown Error Try again later";
-        }
-      });
+      _errorMessage = response == null
+          ? "Unknown error has occurred."
+          : jsonDecode(response.body)['message'] ?? "Verification failed.";
+      setState(() {}); // Trigger UI update with the error message
     }
   }
 
@@ -136,5 +129,3 @@ class _VerificationPageState extends State<VerificationPage> {
     );
   }
 }
-
-

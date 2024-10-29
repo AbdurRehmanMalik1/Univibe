@@ -48,7 +48,7 @@ export class UserContactController {
     @UseGuards(JwtAuthGuard)
     @Post('/')
     async addContact(@Request() req: Request, @Body('contact_type') contact_type: string, @Body('contact_value') contact_value: string,) {
-
+        console.log(req.headers['authorization']);
         const user: Partial<User> = await this.authService.identifyUser(req.headers['authorization']);
 
         if (!contact_type || !contact_value)
@@ -59,11 +59,10 @@ export class UserContactController {
             message:"Contact added Successfully"
         }
     }
-
     @UseGuards(JwtAuthGuard)
     @Put('/')
     async replaceContact(@Request() req: Request,@Body('contact_id')contact_id:number, @Body('contact_type') contact_type: string, @Body('contact_value') contact_value: string,) {
-
+    
         const user: Partial<User> = await this.authService.identifyUser(req.headers['authorization']);
 
         if (!contact_type || !contact_value || !contact_id)

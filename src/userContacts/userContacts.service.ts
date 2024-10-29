@@ -13,10 +13,17 @@ export class UserContactsService {
   constructor(
     @InjectRepository(UserContacts)
     private userContactsRepository: Repository<UserContacts>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) { }
 
   // Method to add a contact with uniqueness validation
   async addContact(user_id: number, contact_type: string, contact_value: string,) {
+    const userExists = await this.userRepository.findOne({ where: { user_id } });
+    if (!userExists) {
+      throw new NotFoundException('User not found');
+    }
+
     const existingContact = await this.userContactsRepository.findOne({
       where: {
         user: { user_id },
@@ -30,7 +37,7 @@ export class UserContactsService {
       );
     }
     await this.userContactsRepository.save({
-      user: { user_id } as User,
+      user: userExists,
       contact_type,
       contact_value,
     });

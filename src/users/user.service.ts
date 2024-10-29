@@ -3,6 +3,7 @@ import {
   BadRequestException,
   UnauthorizedException,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -52,7 +53,7 @@ export class UserService {
       where: { email },
     });
     if (existingUser) {
-      throw new BadRequestException(
+      throw new ConflictException(
         'Email already exists. Please log in instead.',
       );
     }

@@ -21,7 +21,7 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly authService: AuthService,
-  ) {}
+  ) { }
 
 
   /*
@@ -32,15 +32,11 @@ export class UserController {
   async sendVerification(
     @Body() { email, password }: { email: string; password: string },
   ): Promise<{ message: string }> {
-    try {
-      await this.userService.sendVerificationCode(email, password);
-      return { message: 'Verification code sent to email' };
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        return { message: error.message };
-      }
-      throw error;
-    }
+
+    await this.userService.sendVerificationCode(email, password);
+    return { message: 'Verification code sent to email' };
+
+
   }
 
   @Post('verify-code')
@@ -49,7 +45,7 @@ export class UserController {
   ): Promise<{ message: string }> {
     const isVerified = await this.userService.verifyCode(email, code);
     if (!isVerified) {
-      return { message: 'Invalid verification code. Please try again.' };
+      throw new BadRequestException("Invalid Verification Code");
     }
     return { message: 'Code verified. Proceed to send your username.' };
   }

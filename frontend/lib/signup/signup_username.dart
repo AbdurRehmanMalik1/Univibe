@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:frontend/apiFolder/api_service.dart';
 import 'package:frontend/signup/login.dart';
 import 'package:frontend/storage/authentication.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 class SignupUsername extends StatefulWidget {
@@ -23,7 +25,7 @@ class _SignupUsernameState extends State<SignupUsername> {
       const String req = "http://localhost:3000/users/register";
       Uri url = Uri.parse(req);
       try {
-        final response = await http.post(
+        final Response response = await http.post(
           url,
           body: jsonEncode({
             'user_name': username,
@@ -33,15 +35,13 @@ class _SignupUsernameState extends State<SignupUsername> {
             'Content-Type': 'application/json',
           },
         );
-
-        if (response.statusCode == 200) {
-          final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-          authProvider.setToken("");
+        if (response.statusCode == 201) {
+          //final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          // ApiService apiService = ApiService("http://localhost:3000");
+          // authProvider.setToken("");
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const SuccessPage()),
-
           );
         } else {
           final decodedResponse = jsonDecode(response.body); // Decode JSON body

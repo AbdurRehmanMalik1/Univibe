@@ -74,8 +74,8 @@ class _SignUpPageState extends State<SignUpPage> {
         if(response.statusCode == 201){
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => VerificationPage(email: email)),
-            );
+              MaterialPageRoute(builder: (context) => VerificationPage(email: email),
+            ));
         }
         else {
             setState(() {
