@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,6 +24,33 @@ export class PostService {
     private readonly postImageRepository: Repository<PostImage>,
   ) {}
 
+  private check_post_input(
+    title: string,
+    description: string,
+    location: string,
+  ) {
+    if (!title?.trim())
+      throw new BadRequestException('Title is required and cannot be empty.');
+    if (!description?.trim())
+      throw new BadRequestException(
+        'Description is required and cannot be empty.',
+      );
+    if (!location?.trim())
+      throw new BadRequestException(
+        'Location is required and cannot be empty.',
+      );
+
+    if (title.length < 50 || title.length > 200)
+      throw new NotAcceptableException(
+        'Title must be between 50 and 200 characters long.',
+      );
+
+    if (description.length < 100 || description.length > 1000)
+      throw new NotAcceptableException(
+        'Description must be between 100 and 1000 characters.',
+      );
+  }
+
   async createPost(
     userId: number,
     title: string,
@@ -29,78 +58,79 @@ export class PostService {
     location: string,
     activityTypeId: number,
     imageUrls: string[] = [],
-  ) {
-    try {
-      if (!title) throw new NotFoundException('Title is required.');
-      if (!description) throw new NotFoundException('Description is required.');
-      if (!location) throw new NotFoundException('Location is required.');
+  ): Promise<void> {
+    this.check_post_input(title, description, location);
 
-      const activityType = await this.activityRepository.findOne({
-        where: { activity_id: activityTypeId },
-      });
+    const activityType = await this.activityRepository.findOne({
+      where: { activity_id: activityTypeId },
+    });
 
-      if (!activityType)
-        throw new NotFoundException('Activity type not found.');
+    if (!activityType) throw new NotFoundException('Activity type not found.');
 
-      const expiresAt = new Date();
-      const expireTimeHours = parseInt(process.env.EXPIRE_TIME, 10);
-      if (isNaN(expireTimeHours))
-        throw new InternalServerErrorException(
-          'Invalid expiration time configured.',
-        );
-      expiresAt.setHours(expiresAt.getHours() + expireTimeHours);
-
-      const post = this.postRepository.create({
-        user: { user_id: userId } as any,
-        title,
-        description,
-        location,
-        activityType,
-        expires_at: expiresAt,
-      });
-
-      const savedPost = await this.postRepository.save(post);
-
-      if (imageUrls.length > 0) {
-        const postImages = imageUrls.map((url) =>
-          this.postImageRepository.create({
-            post: savedPost,
-            image_url: url,
-          }),
-        );
-        await this.postImageRepository.save(postImages);
-        savedPost.images = postImages;
-      }
-
-      return savedPost;
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-
-      console.error('Error creating post:', error);
-      throw new InternalServerErrorException(
-        'An error occurred while creating the post.',
+    const expiresAt = new Date();
+    const expireTimeHours = parseInt(process.env.EXPIRE_TIME, 10);
+    if (isNaN(expireTimeHours) || expireTimeHours <= 0) {
+      throw new BadRequestException(
+        'Expiration time must be a valid positive number.',
       );
+    }
+
+    expiresAt.setHours(expiresAt.getHours() + expireTimeHours);
+
+    const post = this.postRepository.create({
+      user: { user_id: userId } as any,
+      title,
+      description,
+      location,
+      activityType,
+      expires_at: expiresAt,
+    });
+
+    const savedPost = await this.postRepository.save(post);
+
+    if (imageUrls.length > 0) {
+      const postImages = imageUrls.map((url) =>
+        this.postImageRepository.create({
+          post: savedPost,
+          image_url: url,
+        }),
+      );
+      await this.postImageRepository.save(postImages);
+      savedPost.images = postImages;
     }
   }
 
   async updatePost(
     userId: number,
     postId: number,
-    title: string,
-    description: string,
-    location: string,
+    title?: string,
+    description?: string,
+    location?: string,
     activityTypeId?: number,
-    imageUrls: string[] = [],
+    imageUrls?: string[],
   ) {
     const post = await this.postRepository.findOne({
       where: { post_id: postId, user: { user_id: userId } },
       relations: ['images'],
     });
+  
     if (!post) {
       throw new NotFoundException('Post not found or not authorized');
     }
+  
+    if (title || description || location) {
+      this.check_post_input(
+        title || post.title, 
+        description || post.description, 
+        location || post.location
+      );
+    }
 
-    if (activityTypeId) {
+    if (title) post.title = title;
+    if (description) post.description = description;
+    if (location) post.location = location;
+  
+    if (activityTypeId !== undefined) {
       const activityType = await this.activityRepository.findOne({
         where: { activity_id: activityTypeId },
       });
@@ -109,28 +139,26 @@ export class PostService {
       }
       post.activityType = activityType;
     }
-
-    post.title = title;
-    post.description = description;
-    post.location = location;
-
-    if (imageUrls.length > 0) {
-      await this.postImageRepository.delete({ post: { post_id: postId } });
-
-      const postImages = imageUrls.map((url) =>
-        this.postImageRepository.create({
-          post,
-          image_url: url,
-        }),
-      );
-      await this.postImageRepository.save(postImages);
-      post.images = postImages;
+  
+    if (imageUrls !== undefined && Array.isArray(imageUrls)) {
+      if (imageUrls.length > 0) {
+        await this.postImageRepository.delete({ post: { post_id: postId } });
+  
+        const postImages = imageUrls.map((url) =>
+          this.postImageRepository.create({
+            post,
+            image_url: url,
+          }),
+        );
+        await this.postImageRepository.save(postImages);
+        post.images = postImages;
+      }
     }
-
-    return await this.postRepository.save(post);
+  
+    await this.postRepository.save(post);
   }
 
-  async deletePost(userId: number, postId: number): Promise<string> {
+  async deletePost(userId: number, postId: number): Promise<void> {
     const post = await this.postRepository.findOne({
       where: { post_id: postId, user: { user_id: userId } },
     });
@@ -139,15 +167,7 @@ export class PostService {
       throw new NotFoundException('Post not found or not authorized');
     }
 
-    try {
-      await this.postRepository.remove(post);
-      return `Post with ID ${postId} has been deleted successfully.`;
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      throw new InternalServerErrorException(
-        'An error occurred while deleting the post.',
-      );
-    }
+    await this.postRepository.remove(post);
   }
 
   async getPosts(filters: { [key: string]: any }) {
@@ -165,7 +185,8 @@ export class PostService {
     const searchRadius = parseFloat(radius) * 1000 || 1000; // default to 1km
 
     // Retrieve posts from the database
-    const query = this.postRepository.createQueryBuilder('post')
+    const query = this.postRepository
+      .createQueryBuilder('post')
       .leftJoinAndSelect('post.activityType', 'activity');
 
     // Apply activity type filter if provided
@@ -186,7 +207,7 @@ export class PostService {
       // Calculate the distance between user and post location
       const distance = getDistance(
         { latitude: userLatitude, longitude: userLongitude },
-        { latitude: postLatitude, longitude: postLongitude }
+        { latitude: postLatitude, longitude: postLongitude },
       );
 
       return distance <= searchRadius;

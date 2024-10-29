@@ -12,10 +12,15 @@ import {
   NotFoundException,
   HttpException,
   HttpStatus,
+  NotAcceptableException,
+  InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { AuthService } from 'src/auth/auth.service';
+
+//TODO: heavy testing required
 
 @Controller('posts')
 export class PostController {
@@ -23,6 +28,8 @@ export class PostController {
     private readonly postService: PostService,
     private readonly authService: AuthService,
   ) {}
+
+  
 
   // Create a new post
   @Post('create')
@@ -39,7 +46,7 @@ export class PostController {
       const user = await this.authService.identifyUser(
         req.headers['authorization'],
       );
-      return this.postService.createPost(
+      this.postService.createPost(
         user.user_id,
         title,
         description,
@@ -47,49 +54,68 @@ export class PostController {
         activityTypeId,
         imageUrls,
       );
+
+      return {
+        status: HttpStatus.OK,
+        message: 'post created successfully',
+      };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof NotAcceptableException) {
+        throw new HttpException(error.message, HttpStatus.NOT_ACCEPTABLE);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
       } else {
+        console.error('Unexpected error while creating post:', error);
         throw new HttpException(
-          error.message,
+          'An error occurred while creating the post',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
     }
   }
+
   // Update an existing post
-  //TODO: needs some checks and if no value is passed, make no changes
   @Put(':postId')
   @UseGuards(JwtAuthGuard)
   async updatePost(
-    @Param('postId') postId: number,
-    @Body('title') title: string,
-    @Body('description') description: string,
-    @Body('location') location: string,
-    @Body('activityTypeId') activityTypeId: number,
-    @Body('imageUrls') imageUrls: string[],
     @Req() req: any,
+    @Param('postId') postId: number,
+    @Body('title') title?: string,
+    @Body('description') description?: string,
+    @Body('location') location?: string,
+    @Body('activityTypeId') activityTypeId?: number,
+    @Body('imageUrls') imageUrls?: string[]
   ) {
     try {
       const user = await this.authService.identifyUser(
         req.headers['authorization'],
       );
-      return this.postService.updatePost(
+      await this.postService.updatePost(
         user.user_id,
         postId,
         title,
         description,
         location,
         activityTypeId,
-        imageUrls,
+        imageUrls || [],
       );
+
+      return {
+        status: HttpStatus.OK,
+        message: 'Post updated successfully',
+      };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof NotAcceptableException) {
+        throw new HttpException(error.message, HttpStatus.NOT_ACCEPTABLE);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
       } else {
         throw new HttpException(
-          error.message,
+          'an error occurred while updating the post',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -97,7 +123,6 @@ export class PostController {
   }
 
   // Delete a post
-  //TODO: needs to return a message
   @Delete(':postId')
   @UseGuards(JwtAuthGuard)
   async deletePost(@Param('postId') postId: number, @Req() req: any) {
@@ -105,13 +130,17 @@ export class PostController {
       const user = await this.authService.identifyUser(
         req.headers['authorization'],
       );
-      return this.postService.deletePost(user.user_id, postId);
+      await this.postService.deletePost(user.user_id, postId);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Post deleted successfully',
+      };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       } else {
         throw new HttpException(
-          error.message,
+          'An error occurred while deleting the post',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
@@ -123,9 +152,9 @@ export class PostController {
   @UseGuards(JwtAuthGuard)
   async getPosts(@Query() filters: { [key: string]: any }) {
     try {
-        return this.postService.getPosts(filters);
+      return this.postService.getPosts(filters);
     } catch (error) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 }
