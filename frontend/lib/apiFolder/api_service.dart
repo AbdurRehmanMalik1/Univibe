@@ -76,8 +76,6 @@ class ApiService {
     final responseLogin = await login("abdurrehman4415@gmail.com", "a12345678");
 
     final jwtToken = "Bearer ${responseLogin['access_token']}";
-    print(jwtToken);
-    print("\n");
     //final jwtToken = Provider.of<AuthProvider>(context, listen: false).token;
     // const token =
     //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJlbWFpbCI6ImFiZHVycmVobWFuNDQxNUBnbWFpbC5jb20iLCJpYXQiOjE3MzAwNTg0NDh9.qoOUEazuDozg2oaMOsg02DXTHop1w8nzsm4pZr-Reyg";
@@ -88,25 +86,24 @@ class ApiService {
 
     int counter = contactTypes.length;
     try {
+      List<Map<String, String>> contacts = [];
       for (int i = 0; i < counter; i++) {
-        final response = await http.post(url,
-            body: json.encode({
-              'contact_type': contactTypes[i],
-              'contact_value': contactValues[i]
-            }),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': jwtToken
-            });
-        //printing the reponse body each time
-        if (response.statusCode == 201) {
-          print("Sucess: Response ${response.body}");
-        } else {
-          print("Faliure: ${response.body}");
-        }
+        contacts.add({
+          'contact_type': contactTypes[i],
+          'contact_value': contactValues[i]
+        });
       }
-    } catch (exception) {
-      print(exception);
+      final Response response = await http.post(
+        url,
+        body: json.encode({'contacts': contacts}),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': jwtToken,
+        },
+      );
+      return response;
+        } catch (exception) {
+      return (exception);
     }
   }
 

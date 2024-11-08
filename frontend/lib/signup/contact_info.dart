@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/api_service.dart';
 import 'package:frontend/icons/my_icons.dart';
+import 'package:frontend/utils/utility.dart';
+import 'package:http/http.dart';
 
 List<DropdownMenuItem<String>> contactTypes = [
   const DropdownMenuItem(
@@ -54,8 +57,10 @@ class ContactInfoPage extends StatefulWidget {
 }
 
 class _ContactInfoPageState extends State<ContactInfoPage> {
-  List<String> _selectedTypes = [];
-  List<String> _contactValues = [];
+  String _errroMessage = "";
+
+  final List<String> _selectedTypes = [];
+  final List<String> _contactValues = [];
 
   void _addContactRow() {
     setState(() {
@@ -66,27 +71,40 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
 
   Future<void> _saveContacts() async {
     // Display saved contacts
-    print("\nHere are the type value pair\n");
-    print(_selectedTypes);
-    print(_contactValues);
-    print("\n\n");
+    // print("\nHere are the type value pair\n");
+    // print(_selectedTypes);
+    // print(_contactValues);
+    // print("\n\n");
 
     // Ensure that the contact types and values are not empty
     if (_selectedTypes.isEmpty || _contactValues.isEmpty) {
-      print("Error: Contact types or values cannot be empty.");
-      return; // Exit early if there are no contacts to save
+      _errroMessage = "Contact types or values cannot be empty.";
+      //print("Error: Contact types or values cannot be empty.");
+      return;
     }
 
     ApiService apiService = ApiService("http://localhost:3000");
 
     try {
-      await apiService.addUserContacts(context, _selectedTypes, _contactValues);
+      Response response = await apiService.addUserContacts(
+          context, _selectedTypes, _contactValues);
+      dynamic body = json.decode(response.body);
+      print(body['message']);
+      if(response.statusCode==201){
+        //Positive
+      }
+      else if (response.statusCode==400){
+        //Bad Request
+      }
+      else if(response.statusCode==409){
+        //Conflict Exception
+      }
     } catch (e) {
       // Handle any errors from the API call
-      print("Failed to save contacts: $e");
+      _errroMessage = "Unknown Error occured";
     }
+    ;
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

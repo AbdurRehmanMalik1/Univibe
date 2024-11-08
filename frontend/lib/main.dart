@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home:  ContactInfoPage(username: '',), // Set SignUpPage as the home page
-      home: LoginPage()
+      home: ContactInfoPage()
     );
   }
 }
