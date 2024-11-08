@@ -1,11 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:frontend/apiFolder/api_service.dart';
 import 'package:frontend/signup/login.dart';
-import 'package:frontend/storage/authentication.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:provider/provider.dart';
 
 class SignupUsername extends StatefulWidget {
   final String email;

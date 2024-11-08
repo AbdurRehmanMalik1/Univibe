@@ -3,13 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/api_service.dart';
 import 'package:frontend/signup/signup_username.dart';
-import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 class VerificationPage extends StatefulWidget {
   final String email; // Add this line to accept the passed email
 
-  VerificationPage(
+  const VerificationPage(
       {required this.email, super.key}); // Update constructor to accept email
 
   @override
@@ -20,9 +19,6 @@ class _VerificationPageState extends State<VerificationPage> {
   final TextEditingController _verificationCodeController =
       TextEditingController();
   String _errorMessage = '';
-
-  //String sentCode = '123456'; // Hardcoded sent code for now
-
   void _verifyCode() async {
     String enteredCode = _verificationCodeController.text;
     ApiService apiService = ApiService("http://localhost:3000");

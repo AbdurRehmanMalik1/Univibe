@@ -1,12 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/api_service.dart';
 import 'package:frontend/signup/signup.dart';
 import 'package:frontend/storage/authentication.dart';
 import 'package:frontend/utils/utility.dart';
-import 'package:http/http.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {

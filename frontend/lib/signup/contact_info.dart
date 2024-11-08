@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/api_service.dart';
 import 'package:frontend/icons/my_icons.dart';
-import 'package:frontend/utils/utility.dart';
 import 'package:http/http.dart';
 
 List<DropdownMenuItem<String>> contactTypes = [
@@ -89,22 +87,25 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
       Response response = await apiService.addUserContacts(
           context, _selectedTypes, _contactValues);
       dynamic body = json.decode(response.body);
-      print(body['message']);
-      if(response.statusCode==201){
+      String message = body['message'];
+      print(message);
+      if (response.statusCode == 201) {
+        _errroMessage = "";
         //Positive
-      }
-      else if (response.statusCode==400){
+      } else if (response.statusCode == 400) {
+        _errroMessage = message;
         //Bad Request
-      }
-      else if(response.statusCode==409){
+      } else if (response.statusCode == 409) {
+        _errroMessage = message;
         //Conflict Exception
       }
     } catch (e) {
       // Handle any errors from the API call
       _errroMessage = "Unknown Error occured";
     }
-    ;
+    setState(() {});
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -208,6 +209,42 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
+                const SizedBox(
+                  height: 8,
+                ),
+                if (_errroMessage.isNotEmpty)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.warning,
+                        color: Colors.red,
+                      ),
+                      Text(
+                        _errroMessage,
+                        style: const TextStyle(color: Colors.red),
+                      )
+                    ],
+                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min, 
+                  children: [
+                    const SizedBox(width: 320,),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: TextButton(
+                        iconAlignment: IconAlignment.end,
+                        onPressed: () {},
+                        child: const Text(
+                          "Skip This",
+                          style: TextStyle(color: Colors.lightBlue),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
@@ -221,7 +258,7 @@ class ContactRow extends StatefulWidget {
   final int index;
   final Function(String, String) onChanged;
 
-  ContactRow({required this.index, required this.onChanged, super.key});
+  const ContactRow({required this.index, required this.onChanged, super.key});
 
   @override
   State<ContactRow> createState() => _ContactRowState();
@@ -229,7 +266,7 @@ class ContactRow extends StatefulWidget {
 
 class _ContactRowState extends State<ContactRow> {
   String? selectedContactType;
-  TextEditingController _valueController = TextEditingController();
+  final TextEditingController _valueController = TextEditingController();
 
   @override
   void initState() {
