@@ -32,7 +32,7 @@ export class UserController {
   async sendVerification(
     @Body() { email, password }: { email: string; password: string },
   ): Promise<{ message: string }> {
-
+    
     await this.userService.sendVerificationCode(email, password);
     return { message: 'Verification code sent to email' };
 

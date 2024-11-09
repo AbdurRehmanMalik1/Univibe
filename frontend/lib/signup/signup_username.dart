@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:frontend/signup/contact_info.dart';
 import 'package:frontend/signup/login.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 class SignupUsername extends StatefulWidget {
   final String email;
-  SignupUsername({super.key, required this.email});
+  const SignupUsername({super.key, required this.email});
 
   @override
   State<SignupUsername> createState() => _SignupUsernameState();
@@ -38,7 +39,7 @@ class _SignupUsernameState extends State<SignupUsername> {
           // authProvider.setToken("");
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const SuccessPage()),
+            MaterialPageRoute(builder: (context) => ContactInfoPage()),
           );
         } else {
           final decodedResponse = jsonDecode(response.body); // Decode JSON body

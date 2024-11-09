@@ -102,6 +102,4 @@ class ApiService {
       return (exception);
     }
   }
-
-  // Add other API methods here
 }
