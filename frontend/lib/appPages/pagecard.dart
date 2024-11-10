@@ -28,7 +28,7 @@ class _PageCardState extends State<PageCard> {
     "Profile",
   ];
 
-  String currentPage = "Home";
+  String currentPage = "Create Post";
 
   void _changePage(int index) {
     setState(() {
