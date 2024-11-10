@@ -146,8 +146,8 @@ export class UserService {
                 <p>If you did not create this account, you can safely ignore this email.</p>
                 <p>Best regards,<br>The Fast Media Team</p>
                 <p style="font-size: small; color: #888888;">For assistance, please contact support at <a href="mailto:support@fastmedia.com">support@fastmedia.com</a></p>`,
-    };     
-    console.log(mailOptions);
+    };
+    
     try {
       await transporter.sendMail(mailOptions);
     } catch (error) {
