@@ -23,6 +23,7 @@ import { UserContacts } from './userContacts/userContacts.entity';
 import { UserContactController } from './userContacts/userContacts.controller';
 import { Group } from './groups/group.entity';
 import { GroupController} from './groups/group.controller';
+import { GroupService } from './groups/group.service';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -30,7 +31,7 @@ import { GroupController} from './groups/group.controller';
     TypeOrmModule.forFeature([User,Activity,Interest,UserContacts,Group]),
     AuthModule,
   ],
-  providers: [UserService, AuthService, JwtService,ActivityService,InterestService,UserContactsService],  // Register the service
+  providers: [UserService, AuthService, JwtService,ActivityService,InterestService,UserContactsService,GroupService],  // Register the service
   controllers: [UserController, AuthController,ActivityController,InterestController,UserContactController,GroupController],  // Register the controller
 })
 
