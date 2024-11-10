@@ -14,12 +14,12 @@ export class GroupService {
         private userRepository: Repository<User>,
     ) {}
 
-
-    // async getAll(): Promise<Group[]> {
-    //     return this.groupRepository.find({});
-    // }
-    async addGroup(group: Partial<Group>) {
-        return await this.groupRepository.save(group);
+    async addGroup(group: Partial<Group>): Promise<Group> {
+        const result = await this.groupRepository.save(group);
+        if (result) {
+            return result;
+        }
+        throw new BadRequestException('Could not create the group');
     }
     async getAll() {
         const groups = await this.groupRepository.find({
@@ -27,19 +27,13 @@ export class GroupService {
         });
         return groups.map(({ activity, owner, ...group }) => ({
             ...group,
-            activity_type_name: activity?.type_name,
-            owner_user_name: owner?.user_name,
+            activity,
+            owner:{
+                user_id: owner?.user_id,
+                user_name: owner?.user_name,
+            }
         }));
-          
-        // return groups.map((group:Group) => ({
-        //   group_id:group.group_id,
-        //   group_name:group.group_name,
-        //   description:group.description||null,
-        //   createdAt:group.createdAt,
-        //   activity_type_name: group.activity?.type_name,
-        //   owner_user_name: group.owner?.user_name,
-        // }));
-      }
+    }
 
 
 }

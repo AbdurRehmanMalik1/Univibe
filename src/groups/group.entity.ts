@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToOne, JoinColumn, OneToMany, ManyToMany, JoinTable, ManyToOne } from "typeorm";
 import { User } from 'src/users/user.entity';
 import { Activity } from '../activity/activity.entity';
+import { GroupMembership } from "src/groupMember/groupMember.entity";
 
 @Entity()
 export class Group {
@@ -20,8 +21,12 @@ export class Group {
 
   @CreateDateColumn()
   createdAt: Date;
-  
-  @OneToOne(() => User)
+
+  @ManyToOne(() => User, user => user.owner)
   @JoinColumn({ name: 'owner_id' })
   owner: User;
+  
+  @OneToMany(() => GroupMembership, membership => membership.group)
+  memberships: GroupMembership[];
+
 }

@@ -24,15 +24,18 @@ import { UserContactController } from './userContacts/userContacts.controller';
 import { Group } from './groups/group.entity';
 import { GroupController} from './groups/group.controller';
 import { GroupService } from './groups/group.service';
+import { GroupMembership } from './groupMember/groupMember.entity';
+import { GroupMembershipService } from './groupMember/groupMember.service';
+import { GroupMembershipController } from './groupMember/groupMember.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(AppDataSource.options),
-    TypeOrmModule.forFeature([User,Activity,Interest,UserContacts,Group]),
+    TypeOrmModule.forFeature([User,Activity,Interest,UserContacts,Group,GroupMembership]),
     AuthModule,
   ],
-  providers: [UserService, AuthService, JwtService,ActivityService,InterestService,UserContactsService,GroupService],  // Register the service
-  controllers: [UserController, AuthController,ActivityController,InterestController,UserContactController,GroupController],  // Register the controller
+  providers: [UserService, AuthService, JwtService,ActivityService,InterestService,UserContactsService,GroupService,GroupMembershipService],  // Register the service
+  controllers: [UserController, AuthController,ActivityController,InterestController,UserContactController,GroupController,GroupMembershipController],  // Register the controller
 })
 
 export class AppModule {}

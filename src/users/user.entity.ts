@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } f
 import { UserContacts } from 'src/userContacts/userContacts.entity';
 import {Interest} from '../interests/interest.entity'
 import { Group } from "src/groups/group.entity";
+import { GroupMembership } from "src/groupMember/groupMember.entity";
 @Entity()
 export class User {
 
@@ -38,4 +39,7 @@ export class User {
   @OneToMany(()=>Group,(group)=>group.owner)
   owner:Group[];
 
+
+  @OneToMany(() => GroupMembership, membership => membership.user)
+  memberships: GroupMembership[];
 }

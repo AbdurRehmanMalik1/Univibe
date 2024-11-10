@@ -5,12 +5,14 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { User } from 'src/users/user.entity';
 import { Group } from './group.entity';
 import { Activity } from 'src/activity/activity.entity';
+import { GroupMembershipService } from 'src/groupMember/groupMember.service';
 
 @Controller('groups')
 export class GroupController {
     constructor(
         private readonly groupService: GroupService,
         private readonly authService: AuthService,
+        private readonly groupMemberShipService: GroupMembershipService,
     ) { }
 
 
@@ -19,34 +21,42 @@ export class GroupController {
     async getAll() {
         const groups = await this.groupService.getAll();
         return {
-          message: "Here are the groups",
-          groups,
+            message: "Here are the groups",
+            groups,
         };
     }
     @UseGuards(JwtAuthGuard)
-    @Post()
-    async createGroup( @Req() req: Request,
-    @Body() { group_name, description,activity_id}: 
-    { group_name: string, description: string ,activity_id:number}) {
+    @Post('/')
+    async createGroup(
+        @Req() req: Request,
+        @Body() { group_name, description, activity_id }: { group_name: string, description: string, activity_id: number }
+    ) {
         const owner: Partial<User> = await this.authService.identifyUser(req.headers['authorization']);
-        
-        if (!group_name  || !activity_id) {
+
+        if (!group_name || !activity_id) {
             throw new BadRequestException('All fields (group_name, description, activity_id) are required');
         }
-        
-        const activity: Partial<Activity> ={
-            activity_id
-        }
-        const group : Partial<Group> = {
+
+        const activity: Partial<Activity> = {
+            activity_id,
+        };
+
+        const group: Partial<Group> = {
             group_name,
             description,
             activity: activity as Activity,
-            owner:owner as User
-        }
-        const result = await this.groupService.addGroup(group);
-        
-        return {
-            message: "Group Created Succesfully"
+            owner: owner as User,
+        };
+
+        try {
+            const receivedGroup = await this.groupService.addGroup(group);
+            await this.groupMemberShipService.addMember(owner, receivedGroup, 'admin');
+            return {
+                message: "Group Created Successfully",
+            };
+        } catch (error) {
+            console.error(error); 
+            throw new BadRequestException("Cannot create group at the moment");
         }
     }
 }
