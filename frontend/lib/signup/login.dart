@@ -1,16 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/api_service.dart';
 import 'package:frontend/signup/signup.dart';
 import 'package:frontend/storage/authentication.dart';
 import 'package:frontend/utils/utility.dart';
-import 'package:http/http.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -43,7 +39,6 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {});
       return;
     }
-
     if (password.isEmpty) {
       _errorMessage = "Password is Empty";
       setState(() {});
@@ -54,7 +49,6 @@ class _LoginPageState extends State<LoginPage> {
        var responseBody  = await apiService.login(email,password);
        final authProvider = Provider.of<AuthProvider>(context, listen: false);
        authProvider.setToken(responseBody["access_token"]);
-       print(authProvider.token);
        _errorMessage= "";
     }
     catch(exception){

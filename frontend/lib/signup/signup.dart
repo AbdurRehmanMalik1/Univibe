@@ -1,8 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:frontend/storage/authentication.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'verification.dart'; 
@@ -74,8 +70,8 @@ class _SignUpPageState extends State<SignUpPage> {
         if(response.statusCode == 201){
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => VerificationPage(email: email)),
-            );
+              MaterialPageRoute(builder: (context) => VerificationPage(email: email),
+            ));
         }
         else {
             setState(() {

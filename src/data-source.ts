@@ -38,6 +38,8 @@ export const AppDataSource = new DataSource({
 //   extra: {
 //     encrypt: false,
 //     trustServerCertificate: true,
+//     encrypt: false,
+//     trustServerCertificate: true,
 //     connectionTimeout: 30000,
 //   },
 // });

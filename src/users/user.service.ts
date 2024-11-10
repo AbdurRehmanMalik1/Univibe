@@ -5,6 +5,7 @@ import {
   NotFoundException,
   BadGatewayException,
   InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -51,49 +52,31 @@ export class UserService {
   */
 
   async sendVerificationCode(email: string, password: string): Promise<void> {
-    try {
-      const existingUser = await this.userRepository.findOne({
-        where: { email },
-      });
-      if (existingUser) {
-        throw new BadRequestException(
-          'Email already exists. Please log in instead.',
-        );
-      }
-
-      const code = crypto.randomBytes(3).toString('hex');
-
-      this.temporaryData.set(email, { code, password, verified: false });
-
-      await this.sendEmail(email, code);
-    } catch (error) {
-      if (
-        error instanceof BadRequestException ||
-        error instanceof BadGatewayException
-      ) {
-        throw error;
-      } else {
-        throw new InternalServerErrorException(
-          'An unexpected error occurred during verification code generation.',
-        );
-      }
-    }
-  }
-
-  async verifyCode(email: string, inputCode: string): Promise<void> {
-    const storedData = this.temporaryData.get(email);
-
-    if (!storedData) {
-      throw new NotFoundException('No verification data found for this email.');
-    }
-
-    if (storedData.code !== inputCode) {
-      throw new BadRequestException(
-        'Invalid verification code. Please try again.',
+    const existingUser = await this.userRepository.findOne({
+      where: { email },
+    });
+    if (existingUser) {
+      throw new ConflictException(
+        'Email already exists. Please log in instead.',
       );
     }
 
+    const code = crypto.randomBytes(3).toString('hex');
+
+    this.temporaryData.set(email, { code, password, verified: false });
+
+    await this.sendEmail(email, code);
+  }
+
+  async verifyCode(email: string, inputCode: string): Promise<boolean> {
+    const storedData = this.temporaryData.get(email);
+
+    if (!storedData || storedData.code !== inputCode) {
+      return false;
+    }
+
     this.temporaryData.set(email, { ...storedData, verified: true });
+    return true;
   }
 
   async registerUser(user_name: string, email: string): Promise<User> {

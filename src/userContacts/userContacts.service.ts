@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, IsNull } from 'typeorm';
+import { Repository, Not, IsNull, In } from 'typeorm';
 import { UserContacts } from './userContacts.entity';
 import {
   Injectable,
@@ -13,31 +13,55 @@ export class UserContactsService {
   constructor(
     @InjectRepository(UserContacts)
     private userContactsRepository: Repository<UserContacts>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) { }
 
-  // Method to add a contact with uniqueness validation
-  async addContact(user_id: number, contact_type: string, contact_value: string,) {
-    const existingContact = await this.userContactsRepository.findOne({
+  async addContacts(
+    user_id: number,
+    contacts: { contact_type: string; contact_value: string }[]
+  ) {
+    const userExists = await this.userRepository.findOne({ where: { user_id } });
+    if (!userExists) {
+      throw new NotFoundException('User not found');
+    }
+
+    const contactTypes = contacts.map(contact => contact.contact_type);
+    const contactValues = contacts.map(contact => contact.contact_value);
+
+    const existingContacts = await this.userContactsRepository.find({
       where: {
         user: { user_id },
-        contact_type,
-        contact_value,
+        contact_type: In(contactTypes),
+        contact_value: In(contactValues)
       },
     });
-    if (existingContact) {
-      throw new ConflictException(
-        'Contact with this type and value already exists',
-      );
-    }
-    await this.userContactsRepository.save({
-      user: { user_id } as User,
-      contact_type,
-      contact_value,
-    });
 
+    const existingContactValues = existingContacts.map(
+      contact => `${contact.contact_type}:${contact.contact_value}`
+    );
+
+    for (const contact of contacts) {
+      if (existingContactValues.includes(`${contact.contact_type}:${contact.contact_value}`)) {
+        throw new ConflictException("Contact already exists");
+      }
+    }
+
+    await this.userContactsRepository.save(
+      contacts.map(contact => ({
+        user: userExists,
+        contact_type: contact.contact_type,
+        contact_value: contact.contact_value,
+      }))
+    );
+
+    return {
+      message: 'Contacts added successfully',
+    };
   }
 
-  // Method to get all contacts of a user
+
+
   async getAllContacts(user_id: number): Promise<UserContacts[]> {
     const contacts = await this.userContactsRepository.find({
       where: { user: { user_id } },
