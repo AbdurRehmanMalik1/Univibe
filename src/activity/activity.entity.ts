@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from "typeorm";
 import {Interest} from '../interests/interest.entity'
+import { Group } from "src/groups/group.entity";
 @Entity()
 export class Activity {
 
@@ -12,6 +13,9 @@ export class Activity {
   
   @OneToMany(() => Interest, (interest) => interest.activity)
   interests: Interest[];
+
+  @OneToMany(()=>Group,(group)=>group.activity)
+  groups: Group[]
 }
 
 

@@ -21,15 +21,17 @@ import { Interest } from './interests/interest.entity';
 import { UserContactsService } from './userContacts/userContacts.service';
 import { UserContacts } from './userContacts/userContacts.entity';
 import { UserContactController } from './userContacts/userContacts.controller';
+import { Group } from './groups/group.entity';
+import { GroupController} from './groups/group.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(AppDataSource.options),
-    TypeOrmModule.forFeature([User,Activity,Interest,UserContacts]),
+    TypeOrmModule.forFeature([User,Activity,Interest,UserContacts,Group]),
     AuthModule,
   ],
   providers: [UserService, AuthService, JwtService,ActivityService,InterestService,UserContactsService],  // Register the service
-  controllers: [UserController, AuthController,ActivityController,InterestController,UserContactController],  // Register the controller
+  controllers: [UserController, AuthController,ActivityController,InterestController,UserContactController,GroupController],  // Register the controller
 })
 
 export class AppModule {}

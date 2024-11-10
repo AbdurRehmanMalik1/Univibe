@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from "typeorm";
 import { UserContacts } from 'src/userContacts/userContacts.entity';
 import {Interest} from '../interests/interest.entity'
+import { Group } from "src/groups/group.entity";
 @Entity()
 export class User {
 
@@ -33,4 +34,8 @@ export class User {
 
   @OneToMany(()=>Interest,(interest)=>interest.user)
   interests:Interest[];
+
+  @OneToMany(()=>Group,(group)=>group.owner)
+  owner:Group[];
+
 }
