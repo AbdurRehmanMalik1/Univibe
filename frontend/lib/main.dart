@@ -1,6 +1,7 @@
 // ignore_for_file: unused_import
 
 import 'package:flutter/material.dart';
+import 'package:frontend/appPages/pagecard.dart';
 import 'package:frontend/signup/contact_info.dart';
 import 'package:frontend/signup/login.dart';
 import 'package:frontend/signup/signup_username.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: LoginPage()
+      home: PageCard()
     );
   }
 }

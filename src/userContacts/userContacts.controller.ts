@@ -52,12 +52,7 @@ export class UserContactController {
       console.log(req.headers['authorization']);
     
       const user: Partial<User> = await this.authService.identifyUser(req.headers['authorization']);
-
-      //console.log(contacts.length);
-      console.log('\n');
-      console.log(contacts);
-      console.log('\n');
-
+      
       if (!Array.isArray(contacts) || contacts.length === 0) {
         throw new BadRequestException("Invalid or empty contacts list");
       }
