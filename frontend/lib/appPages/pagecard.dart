@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/appPages/createpost.dart';
 import 'package:frontend/appPages/homepage.dart';
 
 class PageCard extends StatefulWidget {
@@ -38,8 +39,7 @@ class _PageCardState extends State<PageCard> {
   Widget _getPageContent() {
     switch (currentPage) {
       case "Create Post":
-        return const Center(
-            child: Text("Create Post Page", style: TextStyle(fontSize: 24)));
+        return CreatePostPage();
       case "Messages":
         return const Center(
             child: Text("Messages Page", style: TextStyle(fontSize: 24)));
@@ -64,7 +64,7 @@ class _PageCardState extends State<PageCard> {
 
     Drawer drawerWidget = Drawer(
       child: ListView.builder(
-        itemCount: hamburgerIcons.length,
+        itemCount: hamburgerIcons.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
             return const SizedBox(
@@ -87,11 +87,11 @@ class _PageCardState extends State<PageCard> {
             );
           }
           return ListTile(
-            leading: hamburgerIcons[index],
-            title: Text(hamburgerLabels[index]),
+            leading: hamburgerIcons[index - 1],
+            title: Text(hamburgerLabels[index - 1]),
             onTap: () {
-              _changePage(index);
-              Navigator.pop(context); // Close the drawer after selection
+              _changePage(index - 1);
+              // Navigator.pop(context); // Close the drawer after selection
             },
           );
         },
