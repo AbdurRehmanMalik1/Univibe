@@ -1,13 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/image_service.dart';
-import 'package:frontend/apiFolder/imgur_service.dart';
-import 'package:frontend/storage/authentication.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
 class CreatePostPage extends StatelessWidget {
   CreatePostPage({super.key});
@@ -62,6 +57,7 @@ class CreatePostPage extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class WebImagePicker extends StatefulWidget {
   WebImagePickerController? controller;
 
