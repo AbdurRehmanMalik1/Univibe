@@ -1,9 +1,8 @@
-
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Module } from '@nestjs/common';
+import { Module, Post } from '@nestjs/common';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { User } from './users/user.entity';  // Import the User entity
+import { User } from './users/user.entity'; // Import the User entity
 import { UserService } from './users/user.service';
 import { UserController } from './users/user.controller';
 import { AppDataSource } from './data-source';
@@ -27,16 +26,23 @@ import { GroupService } from './groups/group.service';
 import { GroupMembership } from './groupMember/groupMember.entity';
 import { GroupMembershipService } from './groupMember/groupMember.service';
 import { GroupMembershipController } from './groupMember/groupMember.controller';
+import { PostImage } from './postImages/postImage.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(AppDataSource.options),
-    TypeOrmModule.forFeature([User,Activity,Interest,UserContacts,Group,GroupMembership]),
+    TypeOrmModule.forFeature([
+      User,
+      Activity,
+      Interest,
+      UserContacts,
+      Post,
+      PostImage,
+    ,Group,GroupMembership]),
+    ScheduleModule.forRoot(),
     AuthModule,
   ],
-  providers: [UserService, AuthService, JwtService,ActivityService,InterestService,UserContactsService,GroupService,GroupMembershipService],  // Register the service
-  controllers: [UserController, AuthController,ActivityController,InterestController,UserContactController,GroupController,GroupMembershipController],  // Register the controller
+  providers: [UserService, AuthService, JwtService,ActivityService,InterestService,UserContactsService],  // Register the service
+  controllers: [UserController, AuthController,ActivityController,InterestController,UserContactController],  // Register the controller
 })
-
 export class AppModule {}
-

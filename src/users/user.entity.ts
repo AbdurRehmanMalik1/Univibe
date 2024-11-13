@@ -1,11 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { UserContacts } from 'src/userContacts/userContacts.entity';
-import {Interest} from '../interests/interest.entity'
+import { Interest } from '../interests/interest.entity';
+import { Post } from 'src/posts/post.entity';
 import { Group } from "src/groups/group.entity";
 import { GroupMembership } from "src/groupMember/groupMember.entity";
 @Entity()
 export class User {
-
   @PrimaryGeneratedColumn()
   user_id: number;
 
@@ -33,8 +39,11 @@ export class User {
   @OneToMany(() => UserContacts, (userContacts) => userContacts.user)
   userContacts: UserContacts[];
 
-  @OneToMany(()=>Interest,(interest)=>interest.user)
-  interests:Interest[];
+  @OneToMany(() => Interest, (interest) => interest.user)
+  interests: Interest[];
+
+  @OneToMany(() => Post, (post) => post.user, { cascade: true })
+  posts: Post[];
 
   @OneToMany(()=>Group,(group)=>group.owner)
   owner:Group[];

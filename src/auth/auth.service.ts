@@ -15,7 +15,6 @@ import { AuthPayloadDTO } from './dto/auth.dto';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-//TODO: JWT not being generated properly
 @Injectable()
 export class AuthService {
   constructor(
@@ -51,4 +50,5 @@ export class AuthService {
       throw new UnauthorizedException('Invalid token');
     }
   }
+
 }

@@ -19,7 +19,7 @@ import {
 
 import { UserContacts } from './userContacts.entity';
 import { UserContactsService } from './userContacts.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { AuthService } from 'src/auth/auth.service';
 import { User } from 'src/users/user.entity';
 

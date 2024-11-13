@@ -11,6 +11,8 @@ import {
   HttpStatus,
   UnauthorizedException,
   NotFoundException,
+  BadGatewayException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
@@ -21,8 +23,7 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly authService: AuthService,
-  ) { }
-
+  ) {}
 
   /*
     Sign up api calls
@@ -32,29 +33,63 @@ export class UserController {
   async sendVerification(
     @Body() { email, password }: { email: string; password: string },
   ): Promise<{ message: string }> {
-    
-    await this.userService.sendVerificationCode(email, password);
-    return { message: 'Verification code sent to email' };
-
-
+    try {
+      await this.userService.sendVerificationCode(email, password);
+      return { message: 'Verification code sent to email' };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else if (error instanceof BadGatewayException) {
+        throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+      } else if (error instanceof InternalServerErrorException) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      throw new HttpException(
+        'An unexpected error occurred.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Post('verify-code')
   async verifyCode(
     @Body() { email, code }: { email: string; code: string },
   ): Promise<{ message: string }> {
-    const isVerified = await this.userService.verifyCode(email, code);
-    if (!isVerified) {
-      throw new BadRequestException("Invalid Verification Code");
+    try {
+      await this.userService.verifyCode(email, code);
+      return { message: 'Code verified. Proceed to send your username.' };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException(
+        'An unexpected error occurred.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-    return { message: 'Code verified. Proceed to send your username.' };
   }
 
   @Post('register')
   async registerUser(
     @Body() { email, user_name }: { email: string; user_name: string },
-  ): Promise<User> {
-    return this.userService.registerUser(user_name, email);
+  ): Promise<{ message: string; user: User }> {
+    try {
+      const user = await this.userService.registerUser(user_name, email);
+      return { message: 'User registered successfully', user };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException(
+        'An unexpected error occurred.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   // GET /users - Fetch all users
@@ -64,7 +99,7 @@ export class UserController {
   }
 
   /*
-    User API calls
+    User CRUD
   */
 
   //TODO: this is yet to be completed
@@ -123,7 +158,41 @@ export class UserController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number): Promise<void> {
-    return this.userService.deleteUser(id);
+  async remove(@Param('id') id: number): Promise<{ message: string }> {
+    try {
+      await this.userService.deleteUser(id);
+      return { message: 'User deleted successfully' };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      } else if (error instanceof InternalServerErrorException) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      throw new HttpException(
+        'User could not be deleted, try again later',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /*
+    User Profile
+  */
+
+  @Get(':id/profile')
+  async getProfile(@Param('id') id: number): Promise<User> {
+    try {
+      return await this.userService.getUserProfile(id);
+    } catch (error) {
+      if (error instanceof NotFoundException){
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      }
+      else{
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
 }
