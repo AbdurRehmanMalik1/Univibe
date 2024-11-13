@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -10,10 +11,14 @@ class Homepage extends StatelessWidget{
 
   List<Post> posts = generateRandomPosts(10); // Generate 10 random posts
 
-
+  Future? arc =null;
   int postCount = 3;
   @override
   Widget build(BuildContext context) {
+    arc?.then((dynamic value){
+      
+    });
+    
     // double screenWidth = MediaQuery.sizeOf(context).width;
     // double widthThreshold = 500;
 
@@ -42,6 +47,7 @@ class Homepage extends StatelessWidget{
       }),
     );
   }
+
 }
 
 List<Post> generateRandomPosts(int count) {
