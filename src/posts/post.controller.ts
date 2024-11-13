@@ -20,16 +20,12 @@ import { PostService } from './post.service';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { AuthService } from 'src/auth/auth.service';
 
-//TODO: heavy testing required
-
 @Controller('posts')
 export class PostController {
   constructor(
     private readonly postService: PostService,
     private readonly authService: AuthService,
-  ) {}
-
-  
+  ) { }
 
   // Create a new post
   @Post('create')
@@ -157,4 +153,22 @@ export class PostController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Get('all')
+  @UseGuards(JwtAuthGuard)
+  async getAllPosts() {
+    try {
+      // Calling the service function to get all posts
+      const posts = await this.postService.getAllPosts();
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Posts retrieved successfully',
+        data: posts,
+      };
+    } catch (error) {
+      // Handle possible errors and throw appropriate HttpExceptions
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
 }

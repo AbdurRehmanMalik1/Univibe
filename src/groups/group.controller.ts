@@ -1,18 +1,19 @@
-import { BadRequestException, Body, Controller, Get, Head, Header, Post, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, forwardRef, Get, Head, Header, Inject, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { GroupService } from './group.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { User } from 'src/users/user.entity';
 import { Group } from './group.entity';
 import { Activity } from 'src/activity/activity.entity';
 import { GroupMembershipService } from 'src/groupMember/groupMember.service';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
 @Controller('groups')
 export class GroupController {
     constructor(
         private readonly groupService: GroupService,
         private readonly authService: AuthService,
-        private readonly groupMemberShipService: GroupMembershipService,
+        @Inject(forwardRef(() => GroupMembershipService)) // Using forwardRef to resolve circular dependency
+        private readonly groupMembershipService: GroupMembershipService,
     ) { }
 
 
@@ -50,7 +51,7 @@ export class GroupController {
 
         try {
             const receivedGroup = await this.groupService.addGroup(group);
-            await this.groupMemberShipService.addMember(owner, receivedGroup, 'admin');
+            await this.groupMembershipService.addMember(owner, receivedGroup, 'admin');
             return {
                 message: "Group Created Successfully",
             };

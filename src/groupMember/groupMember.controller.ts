@@ -1,14 +1,16 @@
 import { BadRequestException, Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { User } from 'src/users/user.entity';
 import { GroupMembershipService } from './groupMember.service';
 import { Group } from 'src/groups/group.entity';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
 @Controller('group-memberships')
 export class GroupMembershipController {
-
-    constructor(private groupMembershipService: GroupMembershipService, private authService: AuthService) { }
+    constructor(
+        private groupMembershipService: GroupMembershipService, 
+        private authService: AuthService
+    ) { }
 
     @UseGuards(JwtAuthGuard)
     @Post('/')

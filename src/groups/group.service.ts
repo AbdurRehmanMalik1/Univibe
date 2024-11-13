@@ -10,7 +10,7 @@ export class GroupService {
     constructor(
         @InjectRepository(Group)
         private groupRepository: Repository<Group>,
-        @InjectRepository(Group)
+        @InjectRepository(User)
         private userRepository: Repository<User>,
     ) {}
 

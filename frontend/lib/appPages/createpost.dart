@@ -5,7 +5,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/image_service.dart';
 import 'package:frontend/apiFolder/imgur_service.dart';
+import 'package:frontend/storage/authentication.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class CreatePostPage extends StatelessWidget {
   CreatePostPage({super.key});
@@ -21,16 +23,17 @@ class CreatePostPage extends StatelessWidget {
   Future<void> handleUpload(BuildContext context) async {
     final Uint8List? imageBytes =
         getImage();
-    print(base64Encode(imageBytes as List<int>));
     if (imageBytes != null) {
       // Directly pass imageBytes to the upload service
       ImageService imageService = ImageService("http://localhost:3000");
       String base64Image = base64Encode(imageBytes);
-      var result = await imageService.uploadImage(base64Image);
-      if (result == "Image Uploaded Successfully") {
+      
+      //final jwtToken = Provider.of<AuthProvider>(context, listen: false).token;
+      var result = await imageService.uploadImage(base64Image,"temp");
+      if (result!=null) {
         print(result);
       } else {
-        print("Upload failed: $result");
+        print("Unknown Error");
       }
     } else {
       print("No image selected");
