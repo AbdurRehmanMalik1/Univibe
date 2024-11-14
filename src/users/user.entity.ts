@@ -8,6 +8,7 @@ import {
 import { UserContacts } from 'src/userContacts/userContacts.entity';
 import { Interest } from '../interests/interest.entity';
 import { Post } from 'src/posts/post.entity';
+import { Message } from 'src/chat/message.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -42,4 +43,13 @@ export class User {
 
   @OneToMany(() => Post, (post) => post.user, { cascade: true })
   posts: Post[];
+
+
+  // Define OneToMany relationship for messages sent by this user
+  @OneToMany(() => Message, (message) => message.sender)
+  sentMessages: Message[];
+
+  // Define OneToMany relationship for messages received by this user
+  @OneToMany(() => Message, (message) => message.receiver)
+  receivedMessages: Message[];
 }

@@ -27,6 +27,11 @@ import { PostController } from './posts/post.controller';
 import { PostService } from './posts/post.service';
 import { PostImage } from './postImages/postImage.entity';
 import { Post } from './posts/post.entity';
+import { ChatService } from './chat/chat.service';
+import { ChatModule } from './chat/chat.module';
+import { ChatGateway } from './chat/chat.gateway';
+import { Message } from './chat/message.entity';
+import { ChatController } from './chat/chat.controller';
 
 @Module({
   imports: [
@@ -39,9 +44,11 @@ import { Post } from './posts/post.entity';
       UserContacts,
       Post,
       PostImage,
+      Message
     ]),
     ScheduleModule.forRoot(),
     AuthModule,
+    ChatModule
   ],
   providers: [
     UserService,
@@ -51,7 +58,7 @@ import { Post } from './posts/post.entity';
     InterestService,
     UserContactsService,
     PostService,
-    PostCleanupService,
+    PostCleanupService
   ], // Register the service
   controllers: [
     UserController,
@@ -60,6 +67,7 @@ import { Post } from './posts/post.entity';
     InterestController,
     UserContactController,
     PostController,
+    ChatController
   ], // Register the controller
 })
 export class AppModule {}

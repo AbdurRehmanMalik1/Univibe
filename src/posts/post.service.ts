@@ -68,11 +68,11 @@ export class PostService {
     if (!activityType) throw new NotFoundException('Activity type not found.');
 
     const expiresAt = new Date();
-    const expireTimeHours = parseInt(process.env.EXPIRE_TIME, 10);
+    let expireTimeHours = parseInt(process.env.EXPIRE_TIME, 10);
+
     if (isNaN(expireTimeHours) || expireTimeHours <= 0) {
-      throw new BadRequestException(
-        'Expiration time must be a valid positive number.',
-      );
+      console.error("Invalid expiration time: ${process.env.EXPIRE_TIME}");
+      expireTimeHours = 24;
     }
 
     expiresAt.setHours(expiresAt.getHours() + expireTimeHours);
