@@ -9,26 +9,37 @@ class CreatePostPage extends StatelessWidget {
   final WebImagePickerController _webImagePickerController =
       WebImagePickerController();
 
-  Uint8List? getImage() {
-    return _webImagePickerController.getImage != null
-        ? _webImagePickerController.getImage!()
+  Uint8List? getImageAsBytes() {
+    return _webImagePickerController.getImageAsBytes != null
+        ? _webImagePickerController.getImageAsBytes!()
         : null;
   }
 
+  XFile? getImageAsXFile() {
+    return _webImagePickerController.getImageAsXFile != null
+        ? _webImagePickerController.getImageAsXFile!()
+        : null;
+  }
   Future<void> handleUpload(BuildContext context) async {
-    final Uint8List? imageBytes =
-        getImage();
+    final Uint8List? imageBytes = getImageAsBytes();
     if (imageBytes != null) {
-      // Directly pass imageBytes to the upload service
-      ImageService imageService = ImageService("http://localhost:3000");
-      String base64Image = base64Encode(imageBytes);
-      
-      //final jwtToken = Provider.of<AuthProvider>(context, listen: false).token;
-      var result = await imageService.uploadImage(base64Image,"temp");
-      if (result!=null) {
-        print(result);
+      // Check if we have the image in bytes
+      if (imageBytes != null) {
+        print("Image bytes retrieved successfully.");
+
+        // Initialize your backend service
+        ImageService imageService = ImageService("http://localhost:3000");
+        String base64Image = base64Encode(imageBytes);
+        // Send the image bytes to your backend (using imageService)
+        var result = await imageService.uploadImage(base64Image, "temp");
+
+        if (result != null) {
+          print("Backend Response: $result");
+        } else {
+          print("Unknown Error from Backend");
+        }
       } else {
-        print("Unknown Error");
+        print("Failed to retrieve image bytes");
       }
     } else {
       print("No image selected");
@@ -69,12 +80,14 @@ class WebImagePicker extends StatefulWidget {
 
 class _WebImagePickerState extends State<WebImagePicker> {
   Uint8List? _imageBytes;
+  XFile? _imageXfile;
 
   @override
   void initState() {
     super.initState();
     if (widget.controller != null) {
-      widget.controller!.attachGetImageFunction(getImage);
+      widget.controller!
+          .attachGetImageFunction(getImageAsBytes, getImageAsXFile);
     }
   }
 
@@ -86,12 +99,17 @@ class _WebImagePickerState extends State<WebImagePicker> {
       final bytes = await image.readAsBytes();
       setState(() {
         _imageBytes = bytes;
+        _imageXfile = image;
       });
     }
   }
 
-  Uint8List? getImage() {
+  Uint8List? getImageAsBytes() {
     return _imageBytes;
+  }
+
+  XFile? getImageAsXFile() {
+    return _imageXfile;
   }
 
   @override
@@ -116,10 +134,13 @@ class _WebImagePickerState extends State<WebImagePicker> {
 
 class WebImagePickerController {
   // Declare getImage as nullable to avoid late initialization errors
-  Uint8List? Function()? getImage;
+  Uint8List? Function()? getImageAsBytes;
+  XFile? Function()? getImageAsXFile;
 
   // Attach the getImage function
-  void attachGetImageFunction(Uint8List? Function()? getImageFn) {
-    getImage = getImageFn;
+  void attachGetImageFunction(
+      Uint8List? Function()? getImageAsB, XFile? Function()? getImageAsX) {
+    getImageAsBytes = getImageAsB;
+    getImageAsXFile = getImageAsX;
   }
 }

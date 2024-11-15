@@ -6,10 +6,10 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class ImgurAuthService {
-  final String clientId = '60615bededfb002';
-  final String clientSecret = '84dab7848eddc64924c2686a2bffeec99be3454e';
+  final String clientId = '';
+  final String clientSecret = '';
   final String redirectUri = 'http://localhost:3000'; // e.g., https://localhost
-
+  
   Future<String?> authenticate(BuildContext context) async {
     final Uri authorizationUrl = Uri.https('api.imgur.com', '/oauth2/authorize', {
       'client_id': clientId,

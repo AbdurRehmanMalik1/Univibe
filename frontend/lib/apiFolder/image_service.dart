@@ -20,7 +20,7 @@ class ImageService {
 
   final base_headers = {'Content-Type': 'application/json'};
 
-  Future<dynamic> uploadImage(String base64Image, String jwtToken) async {
+  Future<dynamic> uploadImage(String imageUrls, String jwtToken) async {
     ApiService apiService = ApiService(baseUrl);
 
     // Login and get JWT token
@@ -52,7 +52,7 @@ class ImageService {
       'description': description,
       'location': location,
       'activityTypeId': 3, // You can change this depending on the specific activity
-      'imageUrls': [base64Image],
+      'imageUrls': [imageUrls],
     };
 
     Uri uri = Uri.parse("$baseUrl/posts/create");

@@ -1,5 +1,6 @@
 // ignore_for_file: unused_import
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/appPages/pagecard.dart';
 import 'package:frontend/signup/contact_info.dart';
@@ -10,7 +11,7 @@ import './signup/signup.dart'; // Adjust the import based on your file structure
 import 'package:provider/provider.dart';
 import 'storage/authentication.dart';
 
-void main() {
+Future<void> main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => AuthProvider(),
@@ -25,12 +26,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'UniVibe',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: PageCard()
-    );
+        title: 'UniVibe',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: PageCard());
   }
 }
