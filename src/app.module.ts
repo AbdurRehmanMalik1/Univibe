@@ -44,11 +44,11 @@ import { ChatController } from './chat/chat.controller';
       UserContacts,
       Post,
       PostImage,
-      Message
+      Message,
     ]),
     ScheduleModule.forRoot(),
     AuthModule,
-    ChatModule
+    ChatModule,
   ],
   providers: [
     UserService,
@@ -58,7 +58,9 @@ import { ChatController } from './chat/chat.controller';
     InterestService,
     UserContactsService,
     PostService,
-    PostCleanupService
+    PostCleanupService,
+    ChatGateway,
+    ChatService,
   ], // Register the service
   controllers: [
     UserController,
@@ -67,7 +69,7 @@ import { ChatController } from './chat/chat.controller';
     InterestController,
     UserContactController,
     PostController,
-    ChatController
+    ChatController,
   ], // Register the controller
 })
 export class AppModule {}
