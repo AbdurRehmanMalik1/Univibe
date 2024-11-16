@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Post } from 'src/posts/post.entity';
 
@@ -15,7 +16,9 @@ export class PostImage {
   @ManyToOne(() => Post, (post) => post.images, {
     nullable: false,
     onDelete: 'CASCADE',
+    
   })
+  @JoinColumn({ name: 'post_id' })
   post: Post;
 
   // Change image_url to store the base64-encoded string

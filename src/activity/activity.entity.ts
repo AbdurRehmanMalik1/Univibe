@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } f
 import {Interest} from '../interests/interest.entity'
 import { Post } from 'src/posts/post.entity';
 
+import { Group } from "src/groups/group.entity";
 @Entity()
 export class Activity {
 
@@ -17,6 +18,9 @@ export class Activity {
 
   @OneToMany(() => Post, (post) => post.activityType)
   posts: Post[];
+
+  @OneToMany(()=>Group,(group)=>group.activity)
+  groups: Group[]
 }
 
 

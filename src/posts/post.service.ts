@@ -17,12 +17,13 @@ dotenv.config();
 @Injectable()
 export class PostService {
   constructor(
-    @InjectRepository(Post) private readonly postRepository: Repository<Post>,
+    @InjectRepository(Post)
+    private readonly postRepository: Repository<Post>,
     @InjectRepository(Activity)
     private readonly activityRepository: Repository<Activity>,
     @InjectRepository(PostImage)
     private readonly postImageRepository: Repository<PostImage>,
-  ) {}
+  ) { }
 
   private check_post_input(
     title: string,
@@ -70,12 +71,14 @@ export class PostService {
     const expiresAt = new Date();
     let expireTimeHours = parseInt(process.env.EXPIRE_TIME, 10);
 
+    // Check if EXPIRE_TIME is invalid or less than or equal to zero
     if (isNaN(expireTimeHours) || expireTimeHours <= 0) {
-      console.error("Invalid expiration time: ${process.env.EXPIRE_TIME}");
-      expireTimeHours = 24;
+      console.error(`Invalid expiration time: ${process.env.EXPIRE_TIME}`);
+      // Assign a default expiration time if the value is invalid
+      expireTimeHours = 24; // Default to 24 hours if the environment variable is not valid
     }
 
-    expiresAt.setHours(expiresAt.getHours() + expireTimeHours);
+    expiresAt.setHours(expiresAt.getHours() + expireTimeHours);  // Add the expiration time to the current date
 
     const post = this.postRepository.create({
       user: { user_id: userId } as any,
@@ -113,15 +116,15 @@ export class PostService {
       where: { post_id: postId, user: { user_id: userId } },
       relations: ['images'],
     });
-  
+
     if (!post) {
       throw new NotFoundException('Post not found or not authorized');
     }
-  
+
     if (title || description || location) {
       this.check_post_input(
-        title || post.title, 
-        description || post.description, 
+        title || post.title,
+        description || post.description,
         location || post.location
       );
     }
@@ -129,7 +132,7 @@ export class PostService {
     if (title) post.title = title;
     if (description) post.description = description;
     if (location) post.location = location;
-  
+
     if (activityTypeId !== undefined) {
       const activityType = await this.activityRepository.findOne({
         where: { activity_id: activityTypeId },
@@ -139,11 +142,11 @@ export class PostService {
       }
       post.activityType = activityType;
     }
-  
+
     if (imageUrls !== undefined && Array.isArray(imageUrls)) {
       if (imageUrls.length > 0) {
         await this.postImageRepository.delete({ post: { post_id: postId } });
-  
+
         const postImages = imageUrls.map((url) =>
           this.postImageRepository.create({
             post,
@@ -154,7 +157,7 @@ export class PostService {
         post.images = postImages;
       }
     }
-  
+
     await this.postRepository.save(post);
   }
 
@@ -215,4 +218,14 @@ export class PostService {
 
     return filteredPosts;
   }
+  async getAllPosts() {
+    try {
+      // Fetch all posts from the database
+      const posts = await this.postRepository.find(); // Or use `getRepository()` for custom queries
+      return posts;
+    } catch (error) {
+      throw new InternalServerErrorException('Error while retrieving posts');
+    }
+  }
+
 }
