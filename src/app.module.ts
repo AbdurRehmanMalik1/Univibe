@@ -55,8 +55,6 @@
 // })
 // export class AppModule {}
 
-
-
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Module } from '@nestjs/common';
@@ -80,19 +78,16 @@ import { UserContactsService } from './userContacts/userContacts.service';
 import { UserContacts } from './userContacts/userContacts.entity';
 import { UserContactController } from './userContacts/userContacts.controller';
 import { Group } from './groups/group.entity';
-import { GroupController} from './groups/group.controller';
+import { GroupController } from './groups/group.controller';
 import { GroupService } from './groups/group.service';
 import { GroupMembership } from './groupMember/groupMember.entity';
 import { GroupMembershipService } from './groupMember/groupMember.service';
 import { GroupMembershipController } from './groupMember/groupMember.controller';
 import { PostImage } from './postImages/postImage.entity';
 import { ScheduleModule } from '@nestjs/schedule';
-import {Post} from './posts/post.entity'
+import { Post } from './posts/post.entity';
 import { PostService } from './posts/post.service';
 import { PostController } from './posts/post.controller';
-import { PostService } from './posts/post.service';
-import { PostImage } from './postImages/postImage.entity';
-import { Post } from './posts/post.entity';
 import { ChatService } from './chat/chat.service';
 import { ChatModule } from './chat/chat.module';
 import { ChatGateway } from './chat/chat.gateway';
@@ -111,23 +106,36 @@ import { ChatController } from './chat/chat.controller';
       Post,
       PostImage,
       Group,
-       GroupMembership,
+      GroupMembership,
       Message,
-  ]),
+    ]),
     ScheduleModule.forRoot(),
     AuthModule,
     ChatModule,
   ],
-  providers: [UserService, AuthService, JwtService,ActivityService,InterestService,UserContactsService,
-    GroupService,GroupMembershipService,
-    PostService
-      ChatGateway,
+  providers: [
+    UserService,
+    AuthService,
+    JwtService,
+    ActivityService,
+    InterestService,
+    UserContactsService,
+    GroupService,
+    GroupMembershipService,
+    PostService,
+    ChatGateway,
     ChatService,
-  ],  // Register the service
-  controllers: [UserController, AuthController,ActivityController,InterestController,UserContactController,
-    GroupController,GroupMembershipController,
-    PostController
-      ChatController,
-  ],  // Register the controller
+  ], // Register the service
+  controllers: [
+    UserController,
+    AuthController,
+    ActivityController,
+    InterestController,
+    UserContactController,
+    GroupController,
+    GroupMembershipController,
+    PostController,
+    ChatController,
+  ], // Register the controller
 })
 export class AppModule {}

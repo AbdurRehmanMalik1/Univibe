@@ -24,7 +24,6 @@ export class UserController {
     private readonly userService: UserService,
     private readonly authService: AuthService,
   ) {}
-  ) {}
 
   /*
     Sign up api calls
