@@ -23,25 +23,20 @@ class CreatePostPage extends StatelessWidget {
   Future<void> handleUpload(BuildContext context) async {
     final Uint8List? imageBytes = getImageAsBytes();
     if (imageBytes != null) {
-      // Check if we have the image in bytes
-      if (imageBytes != null) {
-        print("Image bytes retrieved successfully.");
+      print("Image bytes retrieved successfully.");
+      // Initialize your backend service
+      ImageService imageService = ImageService("http://localhost:3000");
+      String base64Image = base64Encode(imageBytes);
+      print(imageBytes);
+      // Send the image bytes to your backend (using imageService)
+      var result = await imageService.uploadImage(base64Image, "temp");
 
-        // Initialize your backend service
-        ImageService imageService = ImageService("http://localhost:3000");
-        String base64Image = base64Encode(imageBytes);
-        // Send the image bytes to your backend (using imageService)
-        var result = await imageService.uploadImage(base64Image, "temp");
-
-        if (result != null) {
-          print("Backend Response: $result");
-        } else {
-          print("Unknown Error from Backend");
-        }
+      if (result != null) {
+        print("Backend Response: $result");
       } else {
-        print("Failed to retrieve image bytes");
+        print("Unknown Error from Backend");
       }
-    } else {
+        } else {
       print("No image selected");
     }
   }
