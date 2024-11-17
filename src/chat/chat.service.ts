@@ -119,12 +119,11 @@ export class ChatService {
         { userId, receiverId },
       )
       .orderBy('message.sent_at', 'ASC')
-      .select(['message.content', 'message.sent_at'])
       .getMany();
 
-    // Map the messages to include only the necessary details
     return messages.map((message) => ({
       messageId: message.message_id,
+      senderId: message.sender.user_id,
       content: message.content,
       sentAt: message.sent_at,
     }));
@@ -150,6 +149,40 @@ export class ChatService {
     await this.messageRepository.delete({ message_id });
 
     return { status: 'Message deleted successfully' };
+  }
+
+  async deleteChat(userId: number, chatUserId: number) {
+    // Ensure the user is not attempting to delete their own chat
+    if (userId === chatUserId) {
+      throw new HttpException(
+        'You cannot delete a chat with yourself',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Delete messages where the sender or receiver matches `chatUserId` for the current user
+    const deleteResult = await this.messageRepository
+      .createQueryBuilder()
+      .delete()
+      .from('Messages') // Explicitly specifying the table
+      .where(
+        '(sender_id = :userId AND receiver_id = :chatUserId) OR (sender_id = :chatUserId AND receiver_id = :userId)',
+        { userId, chatUserId },
+      )
+      .execute();
+
+    // Return result or status
+    if (deleteResult.affected === 0) {
+      throw new HttpException(
+        'No messages found for this chat',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return {
+      status: 'Chat deleted successfully',
+      deletedMessages: deleteResult.affected,
+    };
   }
 
   @Cron(CronExpression.EVERY_10_MINUTES)

@@ -41,7 +41,7 @@ export class ChatController {
     return await this.chatService.getMessages(userId, receiverId);
   }
 
-  @Delete()
+  @Delete('delete-message')
   @UseGuards(JwtAuthGuard)
   async deleteMessage(@Request() req, @Body() body: { message_id: number }) {
     const userId = req.user.user_id;
@@ -49,4 +49,14 @@ export class ChatController {
 
     return this.chatService.deleteMessage(message_id, userId);
   }
+
+  @Delete('delete-chat')
+  @UseGuards(JwtAuthGuard)
+  async deleteChat(@Request() req, @Body() body: { chat_user_id: number }) {
+    const userId = req.user.user_id; // Authenticated user ID
+    const { chat_user_id } = body;
+  
+    return await this.chatService.deleteChat(userId, chat_user_id);
+  }
+  
 }
