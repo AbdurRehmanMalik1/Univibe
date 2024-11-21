@@ -135,7 +135,7 @@ class SuccessPage extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => LoginPage()));
+                    context, MaterialPageRoute(builder: (context) => const LoginPage()));
               },
               child: const Text(
                 "Go to Home Page",

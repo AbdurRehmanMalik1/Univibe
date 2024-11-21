@@ -31,7 +31,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime.now(),
-        lastDate: DateTime.now().add(Duration(days: 365)), // 1 year range
+        lastDate: DateTime.now().add(const Duration(days: 365)), // 1 year range
       );
       if (pickedDate != null) {
         setState(() {
@@ -112,16 +112,16 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   const SizedBox(height: 16),
 
                   // Activity Type
-                  Text("Activity Type", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text("Activity Type", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _activityTypeController,
                     decoration: InputDecoration(
                       labelText: "Activity Type",
-                      prefixIcon: Icon(Icons.tag),
-                      border: OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.tag),
+                      border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
-                        icon: Icon(Icons.add),
+                        icon: const Icon(Icons.add),
                         onPressed: () {
                           _addTag(_activityTypeController.text);
                         },
@@ -135,10 +135,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
                     spacing: 8,
                     children: _tags.map((tag) {
                       return Chip(
-                        label: Text(tag, style: TextStyle(color: Colors.white)),
+                        label: Text(tag, style: const TextStyle(color: Colors.white)),
                         backgroundColor: Colors.deepPurple,
                         deleteIconColor: Colors.white,
-                        deleteIcon: Icon(Icons.close),
+                        deleteIcon: const Icon(Icons.close),
                         onDeleted: () {
                           setState(() {
                             _tags.remove(tag);
@@ -152,7 +152,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   // Location
                   TextField(
                     controller: _locationController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "Location",
                       prefixIcon: Icon(Icons.location_on),
                       border: OutlineInputBorder(),
@@ -161,28 +161,28 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   const SizedBox(height: 16),
 
                   // Expiry Date Picker
-                  Text("Expiry Date", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text("Expiry Date", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
-                        child: Text(_expiryDate ?? "No date selected", style: TextStyle(fontSize: 16)),
+                        child: Text(_expiryDate ?? "No date selected", style: const TextStyle(fontSize: 16)),
                       ),
                       ElevatedButton(
                         onPressed: _pickExpiryDate,
-                        child: Text("Pick Date"),
+                        child: const Text("Pick Date"),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
 
                   // Attachments Section Placeholder
-                  Text("Attachments", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text("Attachments", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
-                  Row(
+                  const Row(
                     children: [
                       Icon(Icons.image, color: Colors.grey),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text("Add Attachments"),
                     ],
                   ),
@@ -206,7 +206,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                     ),
                   ),
                   child: _isLoading
-                      ? CircularProgressIndicator(color: Colors.white)
+                      ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           "Create Post",
                           style: TextStyle(color: Colors.white, fontSize: 16),

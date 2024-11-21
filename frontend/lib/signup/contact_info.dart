@@ -48,7 +48,7 @@ List<DropdownMenuItem<String>> contactTypes = [
 ];
 
 class ContactInfoPage extends StatefulWidget {
-  ContactInfoPage({super.key});
+  const ContactInfoPage({super.key});
 
   @override
   State<ContactInfoPage> createState() => _ContactInfoPageState();
