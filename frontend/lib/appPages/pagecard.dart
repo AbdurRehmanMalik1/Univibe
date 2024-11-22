@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/appPages/createpost.dart';
 import 'package:frontend/appPages/homepage.dart';
+import 'package:frontend/appPages/dm.dart';
 
 class PageCard extends StatefulWidget {
-  PageCard({super.key});
+  const PageCard({super.key});
 
   @override
   State<PageCard> createState() => _PageCardState();
@@ -39,10 +40,9 @@ class _PageCardState extends State<PageCard> {
   Widget _getPageContent() {
     switch (currentPage) {
       case "Create Post":
-        return CreatePostPage();
+        return const CreatePostPage();
       case "Messages":
-        return const Center(
-            child: Text("Messages Page", style: TextStyle(fontSize: 24)));
+        return  ChatScreen();
       case "Notifications":
         return const Center(
             child: Text("Notifications Page", style: TextStyle(fontSize: 24)));

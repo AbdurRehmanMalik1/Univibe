@@ -100,7 +100,7 @@ class _VerificationPageState extends State<VerificationPage> {
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: Container(
+                child: SizedBox(
                   width: 170,
                   child: TextButton(
                     onPressed: _verifyCode,

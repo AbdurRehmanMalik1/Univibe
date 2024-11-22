@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'verification.dart'; 
 
 class SignUpPage extends StatefulWidget {
-  SignUpPage({super.key});
+  const SignUpPage({super.key});
 
   
   @override
