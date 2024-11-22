@@ -20,8 +20,8 @@ export class GroupMembershipController {
     private authService: AuthService,
   ) {}
 
+  @Post('add-member')
   @UseGuards(JwtAuthGuard)
-  @Post('/')
   async addGroupMember(
     @Req() req: Request,
     @Body('group_id') group_id: number,
@@ -31,7 +31,7 @@ export class GroupMembershipController {
     );
 
     if (!group_id)
-      throw new BadRequestException('Invalid Paramters: Group ID is missing');
+      throw new BadRequestException('Invalid Parameters: Group ID is missing');
 
     const group: Partial<Group> = { group_id };
     try {
@@ -44,8 +44,8 @@ export class GroupMembershipController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/remove-member')
+  @UseGuards(JwtAuthGuard)
   async removeMember(
     @Req() req: Request,
     @Body('group_id') groupId: number,
@@ -69,8 +69,8 @@ export class GroupMembershipController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/update-role')
+  @UseGuards(JwtAuthGuard)
   async updateRole(
     @Req() req: Request,
     @Body('group_id') groupId: number,
@@ -96,8 +96,8 @@ export class GroupMembershipController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('/')
+  @UseGuards(JwtAuthGuard)
   async getAll(@Req() req: Request, @Body('group_id') group_id: number) {
     const user: Partial<User> = await this.authService.identifyUser(
       req.headers['authorization'],

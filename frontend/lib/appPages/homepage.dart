@@ -9,7 +9,7 @@ import 'package:http/http.dart';
 
 // ignore: must_be_immutable
 class Homepage extends StatefulWidget {
-  Homepage({super.key});
+  const Homepage({super.key});
 
   @override
   State<Homepage> createState() => _HomepageState();
@@ -18,7 +18,7 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   List<Post> posts = Utils.generateRandomPosts(10);
   // Generate 10 random posts
-  Future? arc = null;
+  Future? arc;
 
   int postCount = 10;
 

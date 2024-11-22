@@ -3,7 +3,7 @@ import 'package:frontend/appPages/createpost.dart';
 import 'package:frontend/appPages/homepage.dart';
 
 class PageCard extends StatefulWidget {
-  PageCard({super.key});
+  const PageCard({super.key});
 
   @override
   State<PageCard> createState() => _PageCardState();

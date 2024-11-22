@@ -14,7 +14,7 @@ export class GroupMembershipService {
         private groupRepository: Repository<Group>,
     ) { }
 
-    async addMember(user: Partial<User>, group: Partial<Group>, role: 'member' | 'admin' = 'member'): Promise<any> {
+    async addMember(user: Partial<User>, group: Partial<Group>, role: 'member' | 'admin' | 'owner' = 'member'): Promise<any> {
         const groupExists = await this.groupRepository.findOne({ where: group });
         if (!groupExists)
             throw new BadRequestException("This group does not exist");
