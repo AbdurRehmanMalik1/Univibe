@@ -15,7 +15,8 @@ export class Group {
   @Column({ type: 'varchar', length: 255, nullable: true })
   description: string | null;
 
-  @OneToOne(() => Activity)
+  // Change @OneToOne to @ManyToOne
+  @ManyToOne(() => Activity, activity => activity.groups)
   @JoinColumn({ name: 'activity_id' })
   activity: Activity;
 

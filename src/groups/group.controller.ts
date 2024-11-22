@@ -21,6 +21,9 @@ import { Group } from './group.entity';
 import { Activity } from 'src/activity/activity.entity';
 import { GroupMembershipService } from 'src/groupMember/groupMember.service';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { GroupRole } from 'src/groupMember/groupMember.entity';
 
 @Controller('groups')
 export class GroupController {
@@ -29,6 +32,12 @@ export class GroupController {
     private readonly authService: AuthService,
     @Inject(forwardRef(() => GroupMembershipService)) // Using forwardRef to resolve circular dependency
     private readonly groupMembershipService: GroupMembershipService,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Activity)
+    private readonly activityRepository: Repository<Activity>,
+    @InjectRepository(Group)
+    private readonly groupRepository: Repository<Group>,
   ) {}
 
   @Get('/')
@@ -67,23 +76,60 @@ export class GroupController {
       );
     }
 
-    
-    const activity: Partial<Activity> = { activity_id };
-    const owner: Partial<User> = { user_id };
+    const activity = await this.activityRepository.findOne({
+      where: { activity_id },
+    });
+    if (!activity) {
+      throw new HttpException('Activity not found', HttpStatus.NOT_FOUND);
+    }
+
+    const owner = await this.userRepository.findOne({ where: { user_id } });
+    if (!owner) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const existingGroup = await this.groupRepository.findOne({
+      where: {
+        group_name,
+        activity: { activity_id },
+        owner: { user_id },
+      },
+      relations: ['activity', 'owner'],
+    });
+
+    if (existingGroup) {
+      throw new HttpException(
+        'A group with this name already exists for the specified activity and owner',
+        HttpStatus.CONFLICT,
+      );
+    }
 
     const group: Partial<Group> = {
       group_name,
       description,
-      activity: activity as Activity,
-      owner: owner as User,
+      activity,
+      owner,
     };
 
-    const createdGroup = await this.groupService.addGroup(group);
+    let createdGroup: Group;
+    try {
+      createdGroup = await this.groupService.addGroup(group);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
+    if (!createdGroup || !createdGroup.group_id) {
+      throw new HttpException(
+        'Group creation failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    // Add the owner as a group member with the "owner" role
     await this.groupMembershipService.addMember(
-      owner as User,
-      createdGroup,
-      'owner',
+      owner.user_id,
+      createdGroup.group_id,
+      GroupRole.OWNER,
     );
 
     return {
@@ -94,10 +140,10 @@ export class GroupController {
 
   @Delete('delete-group')
   @UseGuards(JwtAuthGuard)
-  async deleteGroup(@Request() req, @Body() body: {group_id: number}){
+  async deleteGroup(@Request() req, @Body() body: { group_id: number }) {
     const groupId = body.group_id;
-    const userId = req.user_id;
+    const userId = req.user.user_id;
     await this.groupService.deleteGroup(userId, groupId);
-
+    return { message: 'Group deleted successfully' };
   }
 }
