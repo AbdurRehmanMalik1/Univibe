@@ -33,63 +33,24 @@ export class UserController {
   async sendVerification(
     @Body() { email, password }: { email: string; password: string },
   ): Promise<{ message: string }> {
-    try {
-      await this.userService.sendVerificationCode(email, password);
-      return { message: 'Verification code sent to email' };
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      } else if (error instanceof BadGatewayException) {
-        throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
-      } else if (error instanceof InternalServerErrorException) {
-        throw new HttpException(
-          error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      throw new HttpException(
-        'An unexpected error occurred.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.userService.sendVerificationCode(email, password);
+    return { message: 'Verification code sent to email' };
   }
 
   @Post('verify-code')
   async verifyCode(
     @Body() { email, code }: { email: string; code: string },
   ): Promise<{ message: string }> {
-    try {
-      await this.userService.verifyCode(email, code);
-      return { message: 'Code verified. Proceed to send your username.' };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-      } else if (error instanceof BadRequestException) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      }
-      throw new HttpException(
-        'An unexpected error occurred.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    await this.userService.verifyCode(email, code);
+    return { message: 'Code verified. Proceed to send your username.' };
   }
 
   @Post('register')
   async registerUser(
     @Body() { email, user_name }: { email: string; user_name: string },
   ): Promise<{ message: string; user: User }> {
-    try {
       const user = await this.userService.registerUser(user_name, email);
       return { message: 'User registered successfully', user };
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-      }
-      throw new HttpException(
-        'An unexpected error occurred.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
   }
 
   // GET /users - Fetch all users
@@ -187,11 +148,13 @@ export class UserController {
     try {
       return await this.userService.getUserProfile(id);
     } catch (error) {
-      if (error instanceof NotFoundException){
+      if (error instanceof NotFoundException) {
         throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-      }
-      else{
-        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }

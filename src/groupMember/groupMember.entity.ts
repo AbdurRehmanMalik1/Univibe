@@ -22,6 +22,6 @@ export class GroupMembership {
   @CreateDateColumn({ name: 'joined_at', type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   joined_at: Date;
 
-  @Column({ type: 'varchar', length: 50, enum: ['admin', 'member'] })
-  role: 'admin' | 'member';
+  @Column({ type: 'varchar', length: 50, enum: ['owner', 'admin', 'member'] })
+  role: 'owner' | 'admin' | 'member';
 }

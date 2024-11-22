@@ -7,7 +7,7 @@ import 'package:frontend/models/posts.dart';
 import 'package:frontend/utils/utility.dart';
 
 class Homepage extends StatefulWidget {
-  Homepage({super.key});
+  const Homepage({super.key});
 
   @override
   State<Homepage> createState() => _HomepageState();

@@ -1,7 +1,6 @@
 
 Lat Long (31.484643, 74.301241)
 
-
 CREATE TABLE User (
   user_id INT PRIMARY KEY IDENTITY AUTO INCREMENT,
   email VARCHAR(100) UNIQUE NOT NULL,
@@ -25,13 +24,6 @@ CREATE TABLE Interests (
   user_id INT FOREIGN KEY REFERENCES Users(user_id) NOT NULL,
   activity_type_id INT FOREIGN KEY REFERENCES ActivityType(activity_type_id) NOT NULL,
   UNIQUE(user_id, activity_type_id)
-);
-
-CREATE TABLE UserPreferences (
-  user_id INT PRIMARY KEY FOREIGN KEY REFERENCES Users(user_id) ON DELETE CASCADE,
-  theme enum('dark', 'light')
-  notification_setting VARCHAR(50) CHECK (notification_setting IN ('all', 'mentions', 'none')),
-  updated_at DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE ActivityType (
@@ -107,4 +99,12 @@ CREATE TABLE Reviews (
   reviewed_user_id INT FOREIGN KEY REFERENCES Users(user_id) NOT NULL,
   content TEXT NOT NULL,
   created_at DATETIME DEFAULT GETDATE() NOT NULL
+);
+
+//removed this
+CREATE TABLE UserPreferences (
+  user_id INT PRIMARY KEY FOREIGN KEY REFERENCES Users(user_id) ON DELETE CASCADE,
+  theme enum('dark', 'light')
+  notification_setting VARCHAR(50) CHECK (notification_setting IN ('all', 'mentions', 'none')),
+  updated_at DATETIME DEFAULT GETDATE()
 );
