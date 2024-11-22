@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/api_service.dart';
-import 'package:frontend/appPages/homepage.dart';
 import 'package:frontend/appPages/pagecard.dart';
 import 'package:frontend/signup/signup.dart';
 import 'package:frontend/storage/authentication.dart';

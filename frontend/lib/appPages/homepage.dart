@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/post_api_service.dart';
-import 'package:frontend/models/posts.dart';
 import 'package:frontend/storage/authentication.dart';
-import 'package:frontend/utils/utility.dart';
 import 'package:provider/provider.dart';
 
 class Homepage extends StatefulWidget {

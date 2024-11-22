@@ -1,18 +1,7 @@
 import 'dart:convert';
-import 'package:frontend/apiFolder/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
-//  @Post('create')
-//   @UseGuards(JwtAuthGuard)
-//   async createPost(
-//     @Body('title') title: string,
-//     @Body('description') description: string,
-//     @Body('location') location: string,
-//     @Body('activityTypeId') activityTypeId: number,
-//     @Body('imageUrls') imageUrls: string[],
-//     @Req() req: any,
-//   ) {
 class ImageService {
   final String baseUrl;
   final String jwtToken;
@@ -21,21 +10,11 @@ class ImageService {
   final base_headers = {'Content-Type': 'application/json'};
 
   Future<dynamic> uploadImage(String imageUrls) async {
-    //ApiService apiService = ApiService(baseUrl);
-
-    // Login and get JWT token
-    // final responseLogin =
-    //     await apiService.login("abdurrehman4415@gmail.com", "a12345678");
-
     String jwtToken = "Bearer ${this.jwtToken}";
-
-    // Creating appropriate test data based on the conditions
     const String title = 'A Valid Title';
     const String description =
         'This is a valid description. quirement necessary length for a valid description that will pass the validation check that requires it to be between 100 and 1000 characters.';
     const String location = 'Cafe';
-
-    // Prepare payload
     final Map<String, dynamic> payload = {
       'title': title,
       'description': description,
