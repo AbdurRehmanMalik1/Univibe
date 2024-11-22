@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/apiFolder/chat_api_service.dart';
 
 class ChatScreen extends StatelessWidget {
   @override
@@ -22,22 +23,24 @@ class MobileChatView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Navigator(
       onGenerateRoute: (settings) {
-        // Default route shows the DM list
         if (settings.name == '/' || settings.name == null) {
           return MaterialPageRoute(builder: (_) => DMListScreen());
         } else {
-          // Extract the user name from the route
-          final userName = settings.name!.replaceFirst('/chat/', '');
+          // Extract userName and userId from the route
+          final parts = settings.name!.split('/');
+          final userName = parts[2]; // userName is at index 2
+          final userId = parts[3]; // userId is at index 3
           return MaterialPageRoute(
-            builder: (_) => ChatDetailScreen(userName: userName),
-          );
+              builder: (_) => ChatDetailScreen(
+                    userName: userName,
+                    userId: int.parse(userId),
+                  ));
         }
       },
       initialRoute: '/',
     );
   }
 }
-
 
 class DesktopChatView extends StatefulWidget {
   @override
@@ -46,18 +49,21 @@ class DesktopChatView extends StatefulWidget {
 
 class _DesktopChatViewState extends State<DesktopChatView> {
   String? selectedUser;
+  int? userId;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Sidebar with clickable usernames
         Expanded(
           flex: 1,
           child: DMListScreen(
-            onUserSelected: (userName) {
+            onUserSelected: (userName, id) {
               setState(() {
                 selectedUser = userName;
+                userId = int.parse(id)
+                    as int?; // Set the userId when a user is selected
+                print(userId);
               });
             },
           ),
@@ -66,75 +72,132 @@ class _DesktopChatViewState extends State<DesktopChatView> {
         Expanded(
           flex: 3,
           child: selectedUser == null
-              ? Center(
+              ? const Center(
                   child: Text(
                     "Select a user to view the chat",
                     style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                 )
-              : ChatDetailScreen(userName: selectedUser!),
+              : ChatDetailScreen(
+                  userName: selectedUser!,
+                  userId: userId!,
+                ),
         ),
       ],
     );
   }
 }
 
-class DMListScreen extends StatelessWidget {
-  final Function(String)? onUserSelected;
+class DMListScreen extends StatefulWidget {
+  final Function(String, String)?
+      onUserSelected; // Updated to accept both userName and userId.
 
   DMListScreen({this.onUserSelected});
 
-  final List<String> users = [
-    'Alice',
-    'Bob',
-    'Charlie',
-    'Diana',
-    'Eve',
-    'Frank',
-    'Grace',
-  ];
+  @override
+  State<DMListScreen> createState() => _DMListScreenState();
+}
+
+class _DMListScreenState extends State<DMListScreen> {
+  Future<List<dynamic>>? _futureChats;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureChats = getAllChats();
+  }
+
+  Future<List<dynamic>> getAllChats() async {
+    ChatApiService chatApiService = ChatApiService("http://localhost:3000");
+    try {
+      var postResponse = await chatApiService.getAllChats();
+      print(postResponse);
+      return postResponse;
+    } catch (e) {
+      print("Could not get Chats: $e");
+      return []; // Return an empty list on error.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.pink[20],
-      child: ListView.builder(
-        itemCount: users.length,
-        itemBuilder: (context, index) {
-          final userName = users[index];
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.purple[50],
-              child: Icon(Icons.person, color: Colors.white),
-            ),
-            title: Text(
-              userName,
-              style: TextStyle(
-                color: Colors.grey[800],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            onTap: () {
-              if (MediaQuery.of(context).size.width < 600) {
-                // Navigate to chat screen for mobile
-                Navigator.of(context).pushNamed('/chat/$userName');
-              } else if (onUserSelected != null) {
-                // Update selected user for desktop
-                onUserSelected!(userName);
-              }
-            },
-          );
-        },
-      ),
-    );
+    return FutureBuilder<List<dynamic>>(
+        future: _futureChats,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator(); // Show loading spinner.
+          } else if (snapshot.hasError) {
+            return const Text("Error loading posts");
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Text("No Chats available");
+          } else {
+            List<dynamic> chats = snapshot.data!;
+            return ListView.builder(
+              itemCount: chats.length,
+              itemBuilder: (context, index) {
+                final userName = chats[index]["user_name"];
+                final userId = chats[index]["user_id"]
+                    .toString(); // Extract userId from chat data
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.purple[50],
+                    child: const Icon(Icons.person, color: Colors.white),
+                  ),
+                  title: Text(
+                    userName,
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onTap: () {
+                    if (MediaQuery.of(context).size.width < 600) {
+                      // Pass both userName and userId
+                      Navigator.of(context)
+                          .pushNamed('/chat/$userName/$userId');
+                    } else if (widget.onUserSelected != null) {
+                      // Update selected user for desktop, passing userId as well
+                      widget.onUserSelected!(userName, userId);
+                    }
+                  },
+                );
+              },
+            );
+          }
+        });
   }
 }
 
-
-class ChatDetailScreen extends StatelessWidget {
+class ChatDetailScreen extends StatefulWidget {
   final String userName;
+  final int userId;
 
-  ChatDetailScreen({required this.userName});
+  ChatDetailScreen({required this.userName, required this.userId});
+
+  @override
+  _ChatDetailScreenState createState() => _ChatDetailScreenState();
+}
+
+class _ChatDetailScreenState extends State<ChatDetailScreen> {
+  late Future<List<dynamic>> messages;
+
+  @override
+  void initState() {
+    super.initState();
+    messages = getMessages(); // Ensure this returns a Future<List<dynamic>>
+  }
+
+  Future<List<dynamic>> getMessages() async {
+    ChatApiService chatApiService = ChatApiService("http://localhost:3000");
+    try {
+      final response = await chatApiService.getMessages(widget.userId);
+      print("Messages for user ${widget.userId}: $response");
+      return response;
+    } catch (e) {
+      print("Error fetching messages: $e");
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +207,7 @@ class ChatDetailScreen extends StatelessWidget {
         children: [
           // Chat Header
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.green[100],
               border: Border(
@@ -155,11 +218,11 @@ class ChatDetailScreen extends StatelessWidget {
               children: [
                 CircleAvatar(
                   backgroundColor: Colors.green[300],
-                  child: Icon(Icons.person, color: Colors.white),
+                  child: const Icon(Icons.person, color: Colors.white),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Text(
-                  userName,
+                  widget.userName,
                   style: TextStyle(
                     color: Colors.grey[800],
                     fontWeight: FontWeight.bold,
@@ -171,38 +234,62 @@ class ChatDetailScreen extends StatelessWidget {
           ),
           // Chat Messages
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.all(16),
-              itemCount: 20,
-              itemBuilder: (context, index) {
-                bool isMe = index % 2 == 0;
-                return Align(
-                  alignment:
-                      isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 4),
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isMe ? Colors.blue[100] : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+            child: FutureBuilder<List<dynamic>>(
+              future: messages,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return const Center(
                     child: Text(
-                      isMe
-                          ? "My message $index"
-                          : "$userName's message $index",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[800],
-                      ),
+                      "Error loading messages.",
+                      style: TextStyle(color: Colors.red),
                     ),
-                  ),
+                  );
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "No messages yet.",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  );
+                }
+                final messageList = snapshot.data!;
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: messageList.length,
+                  itemBuilder: (context, index) {
+                    final message = messageList[index];
+                    final isMe = message['senderId'] == widget.userId;
+                    return Align(
+                      alignment:
+                          isMe ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isMe ? Colors.blue[100] : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          message['content'],
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),
           ),
           // Input Field
           Padding(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             child: Row(
               children: [
                 Expanded(
@@ -220,10 +307,10 @@ class ChatDetailScreen extends StatelessWidget {
                     style: TextStyle(color: Colors.grey[800]),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 CircleAvatar(
                   backgroundColor: Colors.blue[300],
-                  child: Icon(Icons.send, color: Colors.white),
+                  child: const Icon(Icons.send, color: Colors.white),
                 ),
               ],
             ),
