@@ -58,6 +58,8 @@ export class GroupService {
     }
 
     if (group.owner.user_id !== user_id) {
+      console.log('group owner id: ', group.owner.user_id);
+      console.log('user id: ', user_id)
       throw new HttpException(
         'You are not authorized to delete this group',
         HttpStatus.FORBIDDEN,

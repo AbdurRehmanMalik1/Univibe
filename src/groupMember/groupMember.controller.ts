@@ -3,8 +3,10 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Post,
-  Req,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
@@ -20,100 +22,90 @@ export class GroupMembershipController {
     private authService: AuthService,
   ) {}
 
-  @Post('add-member')
+  @Post('join-group')
   @UseGuards(JwtAuthGuard)
-  async addGroupMember(
-    @Req() req: Request,
-    @Body('group_id') group_id: number,
-  ) {
-    const user: Partial<User> = await this.authService.identifyUser(
-      req.headers['authorization'],
-    );
+  async addGroupMember(@Request() req, @Body('group_id') group_id: number) {
+    const user_id = req.user.user_id;
 
-    if (!group_id)
-      throw new BadRequestException('Invalid Parameters: Group ID is missing');
-
-    const group: Partial<Group> = { group_id };
-    try {
-      await this.groupMembershipService.addMember(user, group);
-      return {
-        message: 'You have successfully joined the requested group',
-      };
-    } catch (error) {
-      throw new BadRequestException('Failed to join group: ' + error.message);
+    if (!group_id) {
+      throw new BadRequestException('Group ID is required');
     }
+
+    await this.groupMembershipService.addMember(user_id, group_id);
+    return { message: 'You have successfully joined the requested group' };
   }
 
   @Post('/remove-member')
   @UseGuards(JwtAuthGuard)
   async removeMember(
-    @Req() req: Request,
+    @Request() req,
     @Body('group_id') groupId: number,
     @Body('user_id') userId: number,
   ) {
-    const requester: Partial<User> = await this.authService.identifyUser(
-      req.headers['authorization'],
-    );
-    if (!groupId || !userId)
-      throw new BadRequestException('Missing parameters');
+    const requesterId = req.user_id;
 
-    try {
-      const message = await this.groupMembershipService.removeMember(
-        groupId,
-        userId,
-        requester.user_id,
+    if (!groupId || !userId) {
+      throw new HttpException(
+        'Missing parameters: group_id and user_id are required',
+        HttpStatus.BAD_REQUEST,
       );
-      return { message };
-    } catch (error) {
-      throw new BadRequestException(error.message);
     }
+
+    const message = await this.groupMembershipService.removeMember(
+      groupId,
+      userId,
+      requesterId,
+    );
+    return { message };
   }
 
   @Post('/update-role')
   @UseGuards(JwtAuthGuard)
   async updateRole(
-    @Req() req: Request,
+    @Request() req,
     @Body('group_id') groupId: number,
     @Body('user_id') userId: number,
-    @Body('new_role') newRole: 'admin' | 'member',
+    @Body('new_role') newRole: 'admin' | 'member' | 'owner',
   ) {
-    const requester: Partial<User> = await this.authService.identifyUser(
-      req.headers['authorization'],
-    );
-    if (!groupId || !userId || !newRole)
-      throw new BadRequestException('Missing parameters');
+    const requesterId = req.user_id;
+
+    if (!groupId || !userId || !newRole) {
+      throw new HttpException(
+        'Missing parameters: group_id, user_id, and new_role are required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     try {
       const message = await this.groupMembershipService.updateRole(
         groupId,
         userId,
-        requester.user_id,
+        requesterId,
         newRole,
       );
       return { message };
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new HttpException(
+        error.message || 'Failed to update role',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @Get('/')
   @UseGuards(JwtAuthGuard)
-  async getAll(@Req() req: Request, @Body('group_id') group_id: number) {
-    const user: Partial<User> = await this.authService.identifyUser(
-      req.headers['authorization'],
-    );
-    if (!group_id)
-      throw new BadRequestException('Invalid Paramters: Group ID is missing');
-    const group: Partial<Group> = { group_id };
-    try {
-      const retrievedMembers: Partial<User>[] =
-        await this.groupMembershipService.getAll(group);
-      return {
-        message: 'Retrievd Group Members sucessfully',
-        retrievedMembers,
-      };
-    } catch (error) {
-      throw new BadRequestException('Failed to join group: ' + error.message);
+  async getAllGroupMembers(@Request() req, @Body('group_id') group_id: number) {
+    const user_id = req.user_id;
+
+    if (!group_id) {
+      throw new BadRequestException('Group ID is required');
     }
+
+    const retrievedMembers =
+      await this.groupMembershipService.getAllMembers(group_id);
+    return {
+      message: 'Retrieved group members successfully',
+      retrievedMembers,
+    };
   }
 }
