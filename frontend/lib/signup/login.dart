@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/api_service.dart';
+import 'package:frontend/appPages/homepage.dart';
+import 'package:frontend/appPages/pagecard.dart';
 import 'package:frontend/signup/signup.dart';
 import 'package:frontend/storage/authentication.dart';
 import 'package:frontend/utils/utility.dart';
@@ -24,7 +26,8 @@ class _LoginPageState extends State<LoginPage> {
     );
     return emailRegExp.hasMatch(email);
   }
-  Future<void> _intiateLogin()async{
+
+  Future<void> _intiateLogin() async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
     if (email.isEmpty) {
@@ -44,19 +47,23 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {});
       return;
     }
-    ApiService apiService = ApiService("http://localhost:3000");  
-    try{
-       var responseBody  = await apiService.login(email,password);
-       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-       authProvider.setToken(responseBody["access_token"]);
-       print(authProvider.token);
-       _errorMessage= "";
-    }
-    catch(exception){
-       _errorMessage = Utils.getReadableErrorMessage(exception.toString());
+    ApiService apiService = ApiService("http://localhost:3000");
+    try {
+      var responseBody = await apiService.login(email, password);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      authProvider.setToken(responseBody["access_token"]);
+      print(authProvider.token);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const PageCard()),
+      );
+      _errorMessage = "";
+    } catch (exception) {
+      _errorMessage = Utils.getReadableErrorMessage(exception.toString());
     }
     setState(() {});
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
