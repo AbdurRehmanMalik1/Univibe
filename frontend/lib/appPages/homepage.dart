@@ -26,7 +26,6 @@ class _HomepageState extends State<Homepage> {
     try {
       var postResponse =jsonDecode(await postApiService.getAllPosts());
       return postResponse['data']; // Return the list of posts.
-    
     } catch (e) {
       print("Could not get posts: $e");
       return []; // Return an empty list on error.
@@ -76,13 +75,13 @@ class _HomepageState extends State<Homepage> {
                                     child: const Icon(
                                       Icons.person,
                                       color: Colors.white,
-                                      size: 50,
+                                      size: 40,
                                     ),
                                   ),
                                   const SizedBox(width: 10),
-                                  const Text(
-                                    "Profile Name",
-                                    style: TextStyle(fontSize: 27),
+                                  Text(
+                                    posts[index]["user_name"],
+                                    style: const TextStyle(fontSize: 16),
                                   ),
                                 ],
                               ),
@@ -148,7 +147,7 @@ class _HomepageState extends State<Homepage> {
 
 class PageViewSlider extends StatefulWidget {
   final List<dynamic> images;
-  PageViewSlider({super.key, required this.images});
+ PageViewSlider({super.key, required this.images});
 
   @override
   State<PageViewSlider> createState() => _PageViewSliderState();
@@ -157,57 +156,59 @@ class PageViewSlider extends StatefulWidget {
 class _PageViewSliderState extends State<PageViewSlider> {
   final PageController _pageController = PageController();
 
-  @override
-  Widget build(BuildContext context) {
-    if (widget.images.isEmpty) {
-      return const Center(child: Text('No images available'));
-    }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        SizedBox(
-          width: 30,
-          child: IconButton(
-            onPressed: () {
-              _pageController.previousPage(
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.bounceIn,
-              );
-            },
-            icon: const Icon(Icons.arrow_back_ios),
-          ),
-        ),
-        Container(
-          color: Colors.black,
-          height: 250,
-          width: 300,
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: widget.images.length,
-            itemBuilder: (context, index) {
-              return Image.memory(
-                base64Decode(widget.images[index]["image_url"]),
-                fit: BoxFit.fitHeight,
-              );
-            },
-          ),
-        ),
-        SizedBox(
-          width: 30,
-          child: IconButton(
-            onPressed: () {
-              _pageController.nextPage(
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.bounceIn,
-              );
-            },
-            icon: const Icon(Icons.arrow_forward_ios),
-          ),
-        ),
-      ],
-    );
+  final double threshold1000 = 1000.0;
+  final double threshold350 = 350.0;
+  @override 
+Widget build(BuildContext context) {
+  if (widget.images.isEmpty) {
+    return const Center(child: Text('No images available'));
   }
+  double screenWidth = MediaQuery.of(context).size.width;
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      SizedBox(
+        width: 30,
+        child: IconButton(
+          onPressed: () {
+            _pageController.previousPage(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.bounceIn,
+            );
+          },
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
+      ),
+      Container(
+        color: Colors.black,
+        height: 250, //300
+        width: screenWidth < threshold1000? 260 : 300 ,
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: widget.images.length,
+          itemBuilder: (context, index) {
+            return Image.memory(
+              base64Decode(widget.images[index]["image_url"]),
+              fit: BoxFit.fitHeight,
+            );
+          },
+        ),
+      ),
+      SizedBox(
+        width: 30,
+        child: IconButton(
+          onPressed: () {
+            _pageController.nextPage(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.bounceIn,
+            );
+          },
+          icon: const Icon(Icons.arrow_forward_ios),
+        ),
+      ),
+    ],
+  );
+}
 }
 
 class HoverButton extends StatefulWidget {

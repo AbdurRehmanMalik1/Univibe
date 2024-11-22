@@ -161,7 +161,6 @@ export class PostController {
       // Calling the service function to get all posts
       const posts = await this.postService.getAllPosts();
       return {
-        statusCode: HttpStatus.OK,
         message: 'Posts retrieved successfully',
         data: posts,
       };

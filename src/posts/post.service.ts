@@ -12,6 +12,7 @@ import { PostImage } from 'src/postImages/postImage.entity';
 import { getDistance } from 'geolib';
 import * as dotenv from 'dotenv';
 import { Activity } from 'src/activity/activity.entity';
+import { User } from 'src/users/user.entity';
 dotenv.config();
 
 @Injectable()
@@ -41,15 +42,15 @@ export class PostService {
         'Location is required and cannot be empty.',
       );
 
-    if (title.length < 50 || title.length > 200)
-      throw new NotAcceptableException(
-        'Title must be between 50 and 200 characters long.',
-      );
+    // if (title.length < 50 || title.length > 200)
+    //   throw new NotAcceptableException(
+    //     'Title must be between 50 and 200 characters long.',
+    //   );
 
-    if (description.length < 100 || description.length > 1000)
-      throw new NotAcceptableException(
-        'Description must be between 100 and 1000 characters.',
-      );
+    // if (description.length < 100 || description.length > 1000)
+    //   throw new NotAcceptableException(
+    //     'Description must be between 100 and 1000 characters.',
+    //   );
   }
 
   async createPost(
@@ -220,8 +221,17 @@ export class PostService {
   }
   async getAllPosts() {
     try {
-      const posts = await this.postRepository.find({relations:["images"]});
-      return posts;
+      const joinedData:Post[] = await this.postRepository.find({relations:["images","user"]});
+      const postForHomePage = joinedData.map((post: Post) => {
+        const { user, images, ...postDetails } = post;
+        return {
+          ...postDetails,
+          user_id: user.user_id,
+          user_name:user.user_name,
+          images,
+        };
+      });
+      return postForHomePage;
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException('Error while retrieving posts');

@@ -109,7 +109,7 @@ class _PageCardState extends State<PageCard> {
         children: [
           if (screenWidth >= drawerThreshold)
             SizedBox(
-              width: 250,
+              width: 200,
               child: drawerWidget,
             ),
           // Main Content Area
