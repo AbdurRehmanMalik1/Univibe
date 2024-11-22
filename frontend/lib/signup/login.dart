@@ -49,6 +49,7 @@ class _LoginPageState extends State<LoginPage> {
        var responseBody  = await apiService.login(email,password);
        final authProvider = Provider.of<AuthProvider>(context, listen: false);
        authProvider.setToken(responseBody["access_token"]);
+       print(authProvider.token);
        _errorMessage= "";
     }
     catch(exception){

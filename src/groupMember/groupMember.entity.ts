@@ -25,3 +25,6 @@ export class GroupMembership {
   @Column({ type: 'varchar', length: 50, enum: ['owner', 'admin', 'member'] })
   role: 'owner' | 'admin' | 'member';
 }
+
+
+
