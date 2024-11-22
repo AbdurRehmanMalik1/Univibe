@@ -6,17 +6,18 @@ import 'package:http/http.dart';
 
 class ChatApiService {
   final String baseUrl;
-  Future<List<dynamic>>? _futureChats;
+  final String jwtToken;
 
-  ChatApiService(this.baseUrl);
+  ChatApiService(this.baseUrl,this.jwtToken);
 
   final base_headers = {'Content-Type': 'application/json'};
+  
 
   Future<dynamic> getAllChats() async {
-    ApiService apiService = ApiService(baseUrl);
-    final responseLogin = await apiService.login("abdurrehman4415@gmail.com", "a12345678");
+    // ApiService apiService = ApiService(baseUrl);
+    // final responseLogin = await apiService.login("abdurrehman4415@gmail.com", "a12345678");
 
-    String jwtToken = "Bearer ${responseLogin['access_token']}";
+    String jwtToken = "Bearer ${this.jwtToken}";
 
     Uri uri = Uri.parse("$baseUrl/chat/get-chats");
     try {
@@ -35,10 +36,10 @@ class ChatApiService {
     }
   }
   Future<dynamic> getMessages(int userId) async {
-    ApiService apiService = ApiService(baseUrl);
-    final responseLogin = await apiService.login("abdurrehman4415@gmail.com", "a12345678");
+    // ApiService apiService = ApiService(baseUrl);
+    // final responseLogin = await apiService.login("abdurrehman4415@gmail.com", "a12345678");
 
-    String jwtToken = "Bearer ${responseLogin['access_token']}";
+    String jwtToken = "Bearer ${this.jwtToken}";
 
     Uri uri = Uri.parse("$baseUrl/chat/get-messages");
     try {

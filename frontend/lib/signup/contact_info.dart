@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/api_service.dart';
 import 'package:frontend/icons/my_icons.dart';
+import 'package:frontend/storage/authentication.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 
 List<DropdownMenuItem<String>> contactTypes = [
   const DropdownMenuItem(
@@ -80,8 +82,8 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
       //print("Error: Contact types or values cannot be empty.");
       return;
     }
-
-    ApiService apiService = ApiService("http://localhost:3000");
+   final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    ApiService apiService = ApiService("http://localhost:3000",authProvider.token);
 
     try {
       Response response = await apiService.addUserContacts(

@@ -47,12 +47,12 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {});
       return;
     }
-    ApiService apiService = ApiService("http://localhost:3000");
+    ApiService apiService = ApiService("http://localhost:3000","Not Set");
     try {
       var responseBody = await apiService.login(email, password);
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       authProvider.setToken(responseBody["access_token"]);
-      print(authProvider.token);
+      //print(authProvider.token);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const PageCard()),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/chat_api_service.dart';
+import 'package:frontend/storage/authentication.dart';
+import 'package:provider/provider.dart';
 
 class ChatScreen extends StatelessWidget {
   @override
@@ -108,7 +110,9 @@ class _DMListScreenState extends State<DMListScreen> {
   }
 
   Future<List<dynamic>> getAllChats() async {
-    ChatApiService chatApiService = ChatApiService("http://localhost:3000");
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    print(authProvider.token);
+    ChatApiService chatApiService = ChatApiService("http://localhost:3000",authProvider.token);
     try {
       var postResponse = await chatApiService.getAllChats();
       print(postResponse);
@@ -188,7 +192,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   }
 
   Future<List<dynamic>> getMessages() async {
-    ChatApiService chatApiService = ChatApiService("http://localhost:3000");
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    ChatApiService chatApiService = ChatApiService("http://localhost:3000",authProvider.token);
     try {
       final response = await chatApiService.getMessages(widget.userId);
       print("Messages for user ${widget.userId}: $response");

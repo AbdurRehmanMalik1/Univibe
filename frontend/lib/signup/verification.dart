@@ -21,7 +21,7 @@ class _VerificationPageState extends State<VerificationPage> {
   String _errorMessage = '';
   void _verifyCode() async {
     String enteredCode = _verificationCodeController.text;
-    ApiService apiService = ApiService("http://localhost:3000");
+    ApiService apiService = ApiService("http://localhost:3000","NOT IMPLEMENTED");
 
     Response? response = await apiService.sendVerificationCode(
         context, widget.email, enteredCode);

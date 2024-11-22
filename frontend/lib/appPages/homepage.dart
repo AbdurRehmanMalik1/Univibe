@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend/apiFolder/post_api_service.dart';
 import 'package:frontend/models/posts.dart';
+import 'package:frontend/storage/authentication.dart';
 import 'package:frontend/utils/utility.dart';
+import 'package:provider/provider.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -22,7 +24,8 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<List<dynamic>> getAllPosts() async {
-    PostApiService postApiService = PostApiService("http://localhost:3000");
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    PostApiService postApiService = PostApiService("http://localhost:3000",authProvider.token);
     try {
       var postResponse =jsonDecode(await postApiService.getAllPosts());
       return postResponse['data']; // Return the list of posts.

@@ -15,22 +15,24 @@ import 'package:http/http.dart';
 //   ) {
 class ImageService {
   final String baseUrl;
-
-  ImageService(this.baseUrl);
+  final String jwtToken;
+  ImageService(this.baseUrl, this.jwtToken);
 
   final base_headers = {'Content-Type': 'application/json'};
 
-  Future<dynamic> uploadImage(String imageUrls, String jwtToken) async {
-    ApiService apiService = ApiService(baseUrl);
+  Future<dynamic> uploadImage(String imageUrls) async {
+    //ApiService apiService = ApiService(baseUrl);
 
     // Login and get JWT token
-    final responseLogin = await apiService.login("abdurrehman4415@gmail.com", "a12345678");
+    // final responseLogin =
+    //     await apiService.login("abdurrehman4415@gmail.com", "a12345678");
 
-    jwtToken = "Bearer ${responseLogin['access_token']}";
+    String jwtToken = "Bearer ${this.jwtToken}";
 
     // Creating appropriate test data based on the conditions
     const String title = 'A Valid Title';
-    const String description = 'This is a valid description. quirement necessary length for a valid description that will pass the validation check that requires it to be between 100 and 1000 characters.';
+    const String description =
+        'This is a valid description. quirement necessary length for a valid description that will pass the validation check that requires it to be between 100 and 1000 characters.';
     const String location = 'Cafe';
 
     // Prepare payload
@@ -39,7 +41,7 @@ class ImageService {
       'description': description,
       'location': location,
       'activityTypeId': 3,
-      'imageUrls': [imageUrls,imageUrls],
+      'imageUrls': [imageUrls, imageUrls],
     };
 
     Uri uri = Uri.parse("$baseUrl/posts/create");

@@ -5,9 +5,12 @@ import 'package:http/http.dart';
 
 class ApiService {
   final String baseUrl;
-
-  ApiService(this.baseUrl);
+ final String jwtToken;
+ 
+  ApiService(this.baseUrl,this.jwtToken);
   final base_headers = {'Content-Type': 'application/json'};
+  
+ 
 
   Future<dynamic> login(String email, String password) async {
     Uri url = Uri.parse("$baseUrl/auth/login");
@@ -68,9 +71,9 @@ class ApiService {
 
   Future<dynamic> addUserContacts(BuildContext context,
       List<String> contactTypes, List<String> contactValues) async {
-    final responseLogin = await login("abdurrehman4415@gmail.com", "a12345678");
+    //final responseLogin = await login("abdurrehman4415@gmail.com", "a12345678");
 
-    final jwtToken = "Bearer ${responseLogin['access_token']}";
+    String jwtToken = "Bearer ${this.jwtToken}";
     //final jwtToken = Provider.of<AuthProvider>(context, listen: false).token;
     // const token =
     //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJlbWFpbCI6ImFiZHVycmVobWFuNDQxNUBnbWFpbC5jb20iLCJpYXQiOjE3MzAwNTg0NDh9.qoOUEazuDozg2oaMOsg02DXTHop1w8nzsm4pZr-Reyg";
