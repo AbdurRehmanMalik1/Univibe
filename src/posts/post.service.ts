@@ -220,10 +220,10 @@ export class PostService {
   }
   async getAllPosts() {
     try {
-      // Fetch all posts from the database
-      const posts = await this.postRepository.find(); // Or use `getRepository()` for custom queries
+      const posts = await this.postRepository.find({relations:["images"]});
       return posts;
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException('Error while retrieving posts');
     }
   }

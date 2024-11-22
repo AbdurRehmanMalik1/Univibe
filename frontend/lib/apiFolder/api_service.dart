@@ -16,7 +16,6 @@ class ApiService {
       body: jsonEncode({'email': email, 'password': password}),
       headers: base_headers,
     );
-
     if (response.statusCode >= 200 && response.statusCode < 300) {
       //print(response.body);
       return json.decode(response.body);
@@ -75,7 +74,7 @@ class ApiService {
     //final jwtToken = Provider.of<AuthProvider>(context, listen: false).token;
     // const token =
     //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJlbWFpbCI6ImFiZHVycmVobWFuNDQxNUBnbWFpbC5jb20iLCJpYXQiOjE3MzAwNTg0NDh9.qoOUEazuDozg2oaMOsg02DXTHop1w8nzsm4pZr-Reyg";
-    // const jwtToken = "Bearer $token";
+    // const jwtToken = "Bearer 3219371298371";
 
     // print(jwtToken);
     final Uri url = Uri.parse("$baseUrl/contacts");
