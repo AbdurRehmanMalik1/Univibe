@@ -1,8 +1,5 @@
-import 'dart:convert';
-import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
-import 'package:frontend/apiFolder/image_service.dart';
-import 'package:image_picker/image_picker.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});

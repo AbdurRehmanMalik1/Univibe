@@ -87,7 +87,8 @@ export class ChatService {
     for (const message of messages) {
       const otherUser =
         message.sender.user_id !== userId ? message.sender : message.receiver;
-
+      
+      
       // Check if the user is already in the chat list
       if (!chatUsers.some((user) => user.user_id === otherUser.user_id)) {
         chatUsers.push({

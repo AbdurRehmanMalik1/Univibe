@@ -203,8 +203,8 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-
+    //const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    const isPasswordValid = (password == user.password_hash);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
     }
